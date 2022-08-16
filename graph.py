@@ -16,7 +16,9 @@ def draw_graph(automaton):
 
 
     for i in automaton.transition:
-        for j in i[2]:
-            states.edge(i[0], j, label = i[1])
+        state_1 = i[0]
+        in_symbol = i[1]
+        for state_2 in i[2]:
+            states.edge(state_1, state_2, label = in_symbol)
 
     states.render(directory='automaton')
