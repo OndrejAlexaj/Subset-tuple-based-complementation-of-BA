@@ -6,7 +6,7 @@ def draw_graph(automaton):
     automaton_image.attr(rankdir='LR')
     automaton_image.attr('node', shape = 'circle')
 
-    for state in automaton.automaton_image:
+    for state in automaton.states:
         if state in automaton.accepting:
             automaton_image.attr('node',rankdir='LR', size = '8,5', shape = 'doublecircle')
         else:
