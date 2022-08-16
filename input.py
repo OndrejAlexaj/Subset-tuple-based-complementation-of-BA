@@ -3,9 +3,6 @@ from buchi_automaton import *
 
 # todo -> make automaton complete
 
-
-# redundant function when marking transition one by one ->
-# -> not having something like [[q0,a,{q1,q2}]] but [[q0,a,q1], [q0,a,q2]]
 def mark_transition(automaton, new_transition):
     # finding if there exists non-determinism (more states from one state)
     for i in range(len(automaton.transition)):
