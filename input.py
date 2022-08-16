@@ -38,7 +38,7 @@ def update_automaton(automaton, parsed):
 
 # returns BuchiAutomaton created according file with its description
 def create_automaton(description_file):
-    automaton = BuchiAutomaton(set(),set(),list(),set(),set())
+    automaton = BuchiAutomaton(set(),set(),list(),"",set())
 
     description = open(description_file, "r")
     expecting_initial = True
@@ -57,10 +57,10 @@ def create_automaton(description_file):
             in_transitions = False
 
         if expecting_initial and not in_transitions:
-            automaton.initial.add(line)
+            automaton.initial = line
             automaton.states.add(line)
         elif expecting_initial and in_transitions:
-            automaton.initial.add(parsed[0])
+            automaton.initial = parsed[0]
             update_automaton(automaton, parsed)
             automaton = mark_transition(automaton, parsed) 
             expecting_initial = False

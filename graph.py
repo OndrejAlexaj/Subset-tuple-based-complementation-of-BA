@@ -2,8 +2,11 @@ import graphviz
 from buchi_automaton import *
 
 def draw_initial(automaton, automaton_image):
-    for state in automaton.initial:
-        automaton_image.node(state)
+    automaton_image.attr('node', shape='none')
+    automaton_image.node("")
+    automaton_image.attr('node',rankdir='LR', shape = 'circle')
+    automaton_image.node(automaton.initial)
+    automaton_image.edge("", automaton.initial)
 
 def draw_states(automaton, automaton_image):
     for state in automaton.states:
