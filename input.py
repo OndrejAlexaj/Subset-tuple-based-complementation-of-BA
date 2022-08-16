@@ -3,14 +3,15 @@ from buchi_automaton import *
 # todo -> make automaton complete
 
 
-# redundant when marking transition one by one
+# redundant function when marking transition one by one ->
+# -> not having something like [[q0,a,{q1,q2}]] but [[q0,a,q1], [q0,a,q2]]
 def mark_transition(automaton, new_transition):
     # finding if there exists non-determinism (more states from one state)
     for i in range(len(automaton.transition)):
         if automaton.transition[i][0] == new_transition[0] and automaton.transition[i][1] == new_transition[1]:
             automaton.transition[i][2].add(new_transition[2])
             return automaton
-    # if not, it is the new transition --> we make "set" from destination state for further adding (might also be "list")
+    # if not, it is the new transition --> we make "set" from destination state for further adding (might also be list)
     tmp = new_transition[2]
     new_transition[2] = set()
     new_transition[2].add(tmp)
@@ -39,37 +40,37 @@ def create_automaton(description_file):
     automaton = BuchiAutomaton(set(),set(),list(),set(),set())
 
     description = open(description_file, "r")
-    transitions = False
+    in_transitions = False # to know when reading transitions lines
+
     while True:
-        # "," not in line ----> vytiahnut predtym do boolu
         line = description.readline()
         contains_comma = "," in line
         if line == "":
             break
 
         line = line.strip('\n') # remove '\n'
-        if contains_comma: # parsing makes sense only when transitions (sign that we are reading transition is ',')
+        if contains_comma: # parsing makes sense only when in transitions (sign that we are reading transition is ',')
             parsed = parse(line)
-            transitions = True
+            in_transitions = True
 
-        if (contains_comma) and (not transitions):
+        if (contains_comma) and (not in_transitions):
             automaton.initial.add(parsed[0])
             update_automaton(automaton, parsed)
             automaton = mark_transition(automaton, parsed)   
-        elif (contains_comma) and (transitions):
+        elif (contains_comma) and (in_transitions):
             update_automaton(automaton, parsed)
             automaton = mark_transition(automaton, parsed)
-        elif not transitions:
+        elif not in_transitions:
             automaton.initial.add(line)
             automaton.states.add(line)   
-        elif (not contains_comma) and (transitions):
+        elif (not contains_comma) and (in_transitions):
             automaton.accepting.add(line)
             automaton.states.add(line)
-            transitions = False
+            in_transitions = False
 
-    # if transitions == True, it means that there was no explicit accepting state.
+    # if in_transitions, it means that there was no explicit accepting state.
     # And by the BA format, in this case all states are considered accepting.
-    if transitions:
+    if in_transitions:
         automaton.accepting = automaton.states.copy()
 
     description.close()
