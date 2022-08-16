@@ -1,3 +1,4 @@
+from enum import auto
 from buchi_automaton import *
 
 # todo -> make automaton complete
@@ -40,33 +41,35 @@ def create_automaton(description_file):
     automaton = BuchiAutomaton(set(),set(),list(),set(),set())
 
     description = open(description_file, "r")
+    expecting_initial = True
     in_transitions = False # to know when reading transitions lines
 
     while True:
         line = description.readline()
-        contains_comma = "," in line
         if line == "":
             break
 
         line = line.strip('\n') # remove '\n'
-        if contains_comma: # parsing makes sense only when in transitions (sign that we are reading transition is ',')
+        if "," in line: # parsing makes sense only when in transitions (sign that we are reading transition is ',')
             parsed = parse(line)
             in_transitions = True
+        else:
+            in_transitions = False
 
-        if (contains_comma) and (not in_transitions):
+        if expecting_initial and not in_transitions:
+            automaton.initial.add(line)
+            automaton.states.add(line)
+        elif expecting_initial and in_transitions:
             automaton.initial.add(parsed[0])
             update_automaton(automaton, parsed)
-            automaton = mark_transition(automaton, parsed)   
-        elif (contains_comma) and (in_transitions):
+            automaton = mark_transition(automaton, parsed) 
+            expecting_initial = False
+        elif in_transitions:
             update_automaton(automaton, parsed)
             automaton = mark_transition(automaton, parsed)
         elif not in_transitions:
-            automaton.initial.add(line)
-            automaton.states.add(line)   
-        elif (not contains_comma) and (in_transitions):
             automaton.accepting.add(line)
             automaton.states.add(line)
-            in_transitions = False
 
     # if in_transitions, it means that there was no explicit accepting state.
     # And by the BA format, in this case all states are considered accepting.
