@@ -4,7 +4,7 @@ from buchi_automaton import *
 def draw_initial(automaton, automaton_image):
     automaton_image.attr('node', shape='none')
     automaton_image.node("")
-    if(automaton.initial in automaton.accepting):
+    if(automaton.initial in automaton.final):
         automaton_image.attr('node',rankdir='LR', shape = 'doublecircle')
     else:
         automaton_image.attr('node',rankdir='LR', shape = 'circle')
@@ -13,7 +13,7 @@ def draw_initial(automaton, automaton_image):
 
 def draw_states(automaton, automaton_image):
     for state in automaton.states:
-        if state in automaton.accepting:
+        if state in automaton.final:
             automaton_image.attr('node',rankdir='LR', shape = 'doublecircle')
         else:
             automaton_image.attr('node',rankdir='LR', shape = 'circle')
@@ -21,14 +21,13 @@ def draw_states(automaton, automaton_image):
         automaton_image.node(state)
 
 def draw_edges(automaton, automaton_image):
-    for i in automaton.transition:
-        state_1 = i[0]
-        in_symbol = i[1]
-        for state_2 in i[2]:
+    for state_1 in automaton.transition:
+       for in_symbol in automaton.transition[state_1]:
+        for state_2 in automaton.transition[state_1][in_symbol]:
             automaton_image.edge(state_1, state_2, label = in_symbol)
 
 def draw_graph(automaton):
-    automaton_image = graphviz.Digraph('BA')  
+    automaton_image = graphviz.Digraph('BA')
     automaton_image.attr(rankdir='LR')
     automaton_image.attr('node', shape = 'circle')
 
