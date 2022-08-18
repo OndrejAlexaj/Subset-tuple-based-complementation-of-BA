@@ -3,6 +3,7 @@ from buchi_automaton import *
 
 # todo -> make automaton complete
 
+# function returns automaton with added transition which is given in form [state1,a,state2]
 def mark_transition(automaton, new_transition):
     if(automaton.transition.get(new_transition[0]) is not None):
         if (automaton.transition[new_transition[0]]).get(new_transition[1]) is not None:
@@ -63,13 +64,13 @@ def create_automaton(description_file):
             update_automaton(automaton, parsed)
             automaton = mark_transition(automaton, parsed)
         elif not in_transitions:
-            automaton.final.add(line)
+            automaton.accepting.add(line)
             automaton.states.add(line)
 
-    # if in_transitions, it means that there was no explicit final state.
-    # And by the BA format, in this case all states are considered final.
+    # if in_transitions, it means that there was no explicit accepting state.
+    # And by the BA format, in this case all states are considered accepting.
     if in_transitions:
-        automaton.final = automaton.states.copy()
+        automaton.accepting = automaton.states.copy()
 
     description.close()
     return automaton

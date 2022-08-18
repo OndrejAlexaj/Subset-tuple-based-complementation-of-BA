@@ -4,7 +4,7 @@ from buchi_automaton import *
 def draw_initial(automaton, automaton_image):
     automaton_image.attr('node', shape='none')
     automaton_image.node("")
-    if(automaton.initial in automaton.final):
+    if(automaton.initial in automaton.accepting):
         automaton_image.attr('node',rankdir='LR', shape = 'doublecircle')
     else:
         automaton_image.attr('node',rankdir='LR', shape = 'circle')
@@ -13,7 +13,7 @@ def draw_initial(automaton, automaton_image):
 
 def draw_states(automaton, automaton_image):
     for state in automaton.states:
-        if state in automaton.final:
+        if state in automaton.accepting:
             automaton_image.attr('node',rankdir='LR', shape = 'doublecircle')
         else:
             automaton_image.attr('node',rankdir='LR', shape = 'circle')

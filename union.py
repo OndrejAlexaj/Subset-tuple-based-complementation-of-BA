@@ -8,9 +8,10 @@ def union(ba_1, ba_2):
     automaton.states = (ba_1.states).union(ba_2.states)
     (automaton.states).add("new")
 
+    # if we assume that the names of states differ
     automaton.alphabet = (ba_1.alphabet).union(ba_2.alphabet)
     automaton.initial = "new"    # hardcoded name of initial state
-    automaton.final = (ba_1.final).union(ba_2.final)
+    automaton.accepting = (ba_1.accepting).union(ba_2.accepting)
 
     automaton.transition = (ba_1.transition).copy()
     (automaton.transition).update(ba_2.transition)
