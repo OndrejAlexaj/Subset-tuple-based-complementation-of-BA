@@ -4,7 +4,7 @@ from input import *
 
 # source:
 # https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
-# section- The algorithm in pseudocode
+# section - The algorithm in pseudocode
 def tarjan(automaton):
     global index
     index = 0
