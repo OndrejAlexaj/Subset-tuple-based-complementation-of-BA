@@ -37,7 +37,6 @@ def intersection(ba_1, ba_2):
 
     for state in automaton.states:
         for symbol in automaton.alphabet:
-            print(state)
             in_copy = state[2]
             automaton = update_transitions(automaton,ba_1,ba_2,in_copy,state,symbol)
 
