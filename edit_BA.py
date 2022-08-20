@@ -1,6 +1,5 @@
 from buchi_automaton import *
 
-
 # function returns automaton with added transition which is given in form [state1,a,state2]
 def mark_transition(automaton, new_transition):
     if(automaton.transition.get(new_transition[0]) is not None):

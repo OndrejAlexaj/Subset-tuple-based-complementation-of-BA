@@ -23,7 +23,7 @@ def update_transitions(automaton,ba_1,ba_2,in_copy,state,symbol):
     else:
         next_states = product(ba_1.transition[state[0]][symbol],ba_2.transition[state[1]][symbol],{3-in_copy})
         if(automaton.transition.get(state) is None):
-                automaton.transition[state] = {symbol:set(next_states)}
+            automaton.transition[state] = {symbol:set(next_states)}
         else:
             automaton.transition[state][symbol] = set(next_states)
     

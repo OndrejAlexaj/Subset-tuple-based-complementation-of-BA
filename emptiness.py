@@ -102,7 +102,6 @@ def reachable_from(automaton,sccs,from_state):
     return new_sccs
 
 # returns False if there is scc which is not trivial, otherwise returns True
-# todo optimise (O(N^2) worst case)
 def trivial_only(automaton,sccs):
     for component in sccs:
         # component which contains only 1 state Q is non-trivial
