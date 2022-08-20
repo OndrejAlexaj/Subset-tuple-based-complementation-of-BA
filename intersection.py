@@ -2,7 +2,7 @@ from enum import auto
 from buchi_automaton import *
 from itertools import product
 
-from input import complete_automaton
+from edit_BA import complete_automaton
 
 # returns automaton with new transitions
 # param. "state" is tuple (Q1,R2,copy) 

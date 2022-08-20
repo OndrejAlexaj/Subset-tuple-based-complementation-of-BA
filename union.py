@@ -1,6 +1,7 @@
 from enum import auto
 from buchi_automaton import *
-from input import *
+from input import mark_transition
+from edit_BA import *
 
 def union(ba_1, ba_2):
     automaton = BuchiAutomaton(set(),set(),dict(),"",set())
@@ -22,7 +23,5 @@ def union(ba_1, ba_2):
     for in_symbol in ba_2.transition[ba_2.initial]:
         for state in ba_2.transition[ba_2.initial][in_symbol]:
             mark_transition(automaton, ["new",in_symbol,state])
-    
-    complete_automaton(automaton)
 
-    return automaton
+    return complete_automaton(automaton)

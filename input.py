@@ -1,5 +1,6 @@
 from enum import auto
 from buchi_automaton import *
+from edit_BA import *
 
 # function returns automaton with added transition which is given in form [state1,a,state2]
 def mark_transition(automaton, new_transition):
@@ -12,29 +13,6 @@ def mark_transition(automaton, new_transition):
         automaton.transition[new_transition[0]] = {new_transition[1]:{new_transition[2]}}
 
     return automaton
-
-# returns complete automaton
-def complete_automaton(automaton):
-    used_sink = "sink" in automaton.states
-
-    for state in automaton.states:
-        if automaton.transition.get(state) is None:
-            for symbol in automaton.alphabet:
-                mark_transition(automaton,[state,symbol,"sink"])
-                used_sink = True
-        else:
-            for symbol in automaton.alphabet:
-                if automaton.transition[state].get(symbol) is None:
-                    mark_transition(automaton,[state,symbol,"sink"])
-                    used_sink = True
-    
-    if used_sink:
-        automaton.states.add("sink")
-        for symbol in automaton.alphabet:
-            mark_transition(automaton,["sink",symbol,"sink"])
-
-    return automaton
-            
 
 # returns [q1,a,q2]
 def parse(line):
