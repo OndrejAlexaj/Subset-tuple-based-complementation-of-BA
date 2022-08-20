@@ -74,6 +74,7 @@ def with_accepting(automaton,sccs):
     
     return new_sccs
 
+# returns updated dictionary of visited states from desired state
 def dfs(automaton,from_state,was_in):
     for succ in automaton.transition[from_state].values():
         for state in succ:
@@ -82,6 +83,8 @@ def dfs(automaton,from_state,was_in):
                 was_in = dfs(automaton,state,was_in)
     return was_in
 
+# returns array containing sccs which are reachable from
+# desired state
 def reachable_from(automaton,sccs,from_state):
     was_in = dict()
     new_sccs = []
@@ -98,16 +101,27 @@ def reachable_from(automaton,sccs,from_state):
 
     return new_sccs
 
+# returns False if there is scc which is not trivial, otherwise returns True
+# todo optimise (O(N^2) worst case)
+def trivial_only(automaton,sccs):
+    for component in sccs:
+        # component which contains only 1 state Q is non-trivial
+        # iff there exists edge from Q to Q
+        if len(component) == 1:
+            for state in component:
+                for j in automaton.transition[state].values():
+                    if j == state:
+                        return False
+        else:
+            return False
+
+    return True
+
 # returns True if given automaton doesn't recognize
 # any language, False otherwise
 def empty(automaton):
-    sccs = tarjan(automaton)   
+    sccs = tarjan(automaton) 
     sccs = with_accepting(automaton,sccs)
     sccs = reachable_from(automaton,sccs,automaton.initial)
-    
-    # looking for non-trivial (having some successor)
-    for component in sccs:
-        for state in component:
-            if automaton.transition[state] is not None:
-                return False
-    return True
+
+    return trivial_only(automaton,sccs)

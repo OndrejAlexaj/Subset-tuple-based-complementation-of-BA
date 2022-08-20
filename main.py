@@ -1,3 +1,4 @@
+from venv import create
 from buchi_automaton import *
 from input import *
 from draw_automaton import *
@@ -12,5 +13,8 @@ buchiAutomaton_2 = create_automaton("inputs/example2.ba")
 
 #unified = union(buchiAutomaton_1, buchiAutomaton_2)
 #draw_graph(unified)
-
-draw_graph(intersection(buchiAutomaton_1,buchiAutomaton_2))
+intersected = intersection(buchiAutomaton_1,buchiAutomaton_2)
+#scuffed = create_automaton("inputs/scuffed.ba")
+#draw_graph(scuffed)
+draw_graph(intersected)
+print(empty(intersected))
