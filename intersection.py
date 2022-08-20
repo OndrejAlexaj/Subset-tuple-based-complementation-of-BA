@@ -2,6 +2,8 @@ from enum import auto
 from buchi_automaton import *
 from itertools import product
 
+from input import complete_automaton
+
 # returns automaton with new transitions
 # param. "state" is tuple (Q1,R2,copy) 
 # where Q1 is from ba_1 states and R2 from ba_2 ...
@@ -30,6 +32,10 @@ def update_transitions(automaton,ba_1,ba_2,in_copy,state,symbol):
 def intersection(ba_1, ba_2):
     automaton = BuchiAutomaton(set(),set(),dict(),"",set())
 
+    ba_1.alphabet = (ba_1.alphabet).union(ba_2.alphabet)
+    complete_automaton(ba_1)
+    ba_2.alphabet = (ba_1.alphabet).union(ba_2.alphabet)
+    complete_automaton(ba_2)
     automaton.alphabet = (ba_1.alphabet).union(ba_2.alphabet)
     automaton.states = set(product(ba_1.states,ba_2.states,{1,2}))
     automaton.initial = (ba_1.initial,ba_2.initial,1) 

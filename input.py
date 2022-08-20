@@ -15,7 +15,7 @@ def mark_transition(automaton, new_transition):
 
 # returns complete automaton
 def complete_automaton(automaton):
-    used_sink = False
+    used_sink = "sink" in automaton.states
 
     for state in automaton.states:
         if automaton.transition.get(state) is None:
