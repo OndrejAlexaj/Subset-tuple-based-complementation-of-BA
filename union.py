@@ -1,6 +1,5 @@
 from enum import auto
 from buchi_automaton import *
-from input import mark_transition
 from edit_BA import *
 
 def union(ba_1, ba_2):

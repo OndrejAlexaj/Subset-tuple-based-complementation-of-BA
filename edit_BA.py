@@ -1,5 +1,18 @@
 from buchi_automaton import *
 
+
+# function returns automaton with added transition which is given in form [state1,a,state2]
+def mark_transition(automaton, new_transition):
+    if(automaton.transition.get(new_transition[0]) is not None):
+        if (automaton.transition[new_transition[0]]).get(new_transition[1]) is not None:
+            (automaton.transition[new_transition[0]][new_transition[1]]).add(new_transition[2])
+        else:
+            automaton.transition[new_transition[0]][new_transition[1]] = {new_transition[2]}
+    else:
+        automaton.transition[new_transition[0]] = {new_transition[1]:{new_transition[2]}}
+
+    return automaton
+
 # returns complete automaton
 def complete_automaton(automaton):
     used_sink = "sink" in automaton.states
