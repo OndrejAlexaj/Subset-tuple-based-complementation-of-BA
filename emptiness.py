@@ -5,122 +5,89 @@ from input import *
 # source:
 # https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
 # section - The algorithm in pseudocode
-def tarjan(automaton):
-    global index
+# Modified to compute SCCs just from desired state
+def tarjan(automaton,from_state):
+    end_algo = False
     index = 0
     sccs, stack = [], []
     indices, lowlinks, on_stack = dict(), dict(), dict()
+
+    ##############################################
+    # to easily distinguish between accepting
+    # and non-accepting states just by their names
+    accepting = dict()
+    for state in automaton.states:
+        accepting[state] = False 
+    for state in automaton.accepting:
+        accepting[state] = True
+    ##############################################
 
     for v in automaton.states:
         indices[v] = -1
         on_stack[v] = False
     
     def strongconnect(v):
-        global index
+        nonlocal index, end_algo
         indices[v] = index
         lowlinks[v] = index
         index += 1
         stack.append(v)
         on_stack[v] = True
 
-        for succ in automaton.transition[v].values(): # it is guaranteed that this cycle is performed
-            for w in succ:                            # just once (just one set of successors)
-                if indices[w] == -1:
-                    strongconnect(w)
-                    lowlinks[v] = min(lowlinks[v],lowlinks[w])
-                elif on_stack[w]:
-                    lowlinks[v] = min(lowlinks[v],indices[w])
-        
-        if lowlinks[v] == indices[v]:
-            tmp = set()
-            while True:
-                w = stack.pop()
-                on_stack[w] = False
-                tmp.add(w)
-                if(w == v):
-                    break
-            sccs.append(tmp)
+        if automaton.transition.get(v) is not None: # to catch if the automaton is not complete
+            for succ in automaton.transition[v].values(): # it is guaranteed that this cycle is performed
+                for w in succ:                            # just once (just one set of successors)
+                    if indices[w] == -1:
+                        strongconnect(w)
+                        if end_algo: # if we found desired SCC, there is no need to continue in algorithm
+                            return
+                        lowlinks[v] = min(lowlinks[v],lowlinks[w])
+                    elif on_stack[w]:
+                        lowlinks[v] = min(lowlinks[v],indices[w])
+            
+            visited_accepting = False
+            if lowlinks[v] == indices[v]:
+                tmp = set()
+                while True:
+                    w = stack.pop()
+                    if accepting[w]:
+                        visited_accepting = True
+                    tmp.add(w)
+                    on_stack[w] = False
+                    if(w == v):
+                        break
+
+                if visited_accepting and not is_trivial(automaton,tmp):
+                    sccs.append(tmp)
+                    end_algo = True
 
     # in pseudocode this part is above the strongconnect(),
     # but to make it run it needs to be after definition
-    for v in automaton.states:
-        if indices[v] == -1:
-            strongconnect(v)
+    if indices[from_state] == -1:
+        strongconnect(from_state)
 
     return sccs
 
-# function returns array of sccs which contain accepting state
-def with_accepting(automaton,sccs):
-    new_sccs = []
-
-    # Setting values in dictionary to easily
-    # distinguish between accepting and non-accepting
-    # states. Runs in linear time since each state is 
-    # "touched" at most twice
-    states_appearance = dict()
-    for state in automaton.states:
-        states_appearance[state] = False 
-    for state in automaton.accepting:
-        states_appearance[state] = True
-
-    # these nested for loops run in linear time
-    # since each state is "touched" at most once
-    # and "if" condition is O(1) thanks to dictionary
-    for component in sccs:
-        for state in component:
-            if states_appearance[state]:
-                new_sccs.append(component)
-                break
-    
-    return new_sccs
-
-# returns updated dictionary of visited states from desired state
-def dfs(automaton,from_state,was_in):
-    for succ in automaton.transition[from_state].values():
-        for state in succ:
-            if not was_in[state]:
-                was_in[state] = True
-                was_in = dfs(automaton,state,was_in)
-    return was_in
-
-# returns array containing sccs which are reachable from
-# desired state
-def reachable_from(automaton,sccs,from_state):
-    was_in = dict()
-    new_sccs = []
-
-    for state in automaton.states:
-        was_in[state] = False
-
-    was_in = dfs(automaton,from_state,was_in)
-    for component in sccs:
-        for state in component:
-            if was_in[state]:
-                new_sccs.append(component)
-                break
-
-    return new_sccs
-
-# returns False if there is scc which is not trivial, otherwise returns True
-def trivial_only(automaton,sccs):
-    for component in sccs:
-        # component which contains only 1 state Q is non-trivial
-        # iff there exists edge from Q to Q
-        if len(component) == 1:
-            for state in component:
-                for j in automaton.transition[state].values():
-                    if j == state:
+# returns True if the SCC is trivial, False otherwise
+def is_trivial(automaton,component):
+    # component which contains only 1 state Q is non-trivial
+    # iff there exists edge from Q to Q
+    if len(component) == 1:
+        for state_1 in component:
+            if automaton.transition.get(state_1) is None: # if automaton is not complete
+                return False
+            for set_of_succ in automaton.transition[state_1].values():
+                for state_2 in set_of_succ:
+                    if state_1==state_2:
                         return False
-        else:
-            return False
+    else:
+        return False
 
     return True
 
 # returns True if given automaton doesn't recognize
 # any language, False otherwise
 def empty(automaton):
-    sccs = tarjan(automaton) 
-    sccs = with_accepting(automaton,sccs)
-    sccs = reachable_from(automaton,sccs,automaton.initial)
+    sccs = tarjan(automaton,automaton.initial) 
 
-    return trivial_only(automaton,sccs)
+    return len(sccs)==0

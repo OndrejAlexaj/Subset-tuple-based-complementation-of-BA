@@ -20,9 +20,9 @@ intersected = intersection(buchiAutomaton_1,buchiAutomaton_2)
 #new_inter = intersection(buchiAutomaton_1,buchiAutomaton_2)
 
 
-draw_graph(intersected)
-create_output(intersected)
-draw_graph(remove_dead_states(intersected))
+draw_graph(buchiAutomaton_2)
+create_output(buchiAutomaton_2)
+#draw_graph(remove_dead_states(buchiAutomaton_2))
 #print(len(new_inter.states))
-#print("Given automaton is empty: ",empty(unified))
+print("Given automaton is empty: ",empty(buchiAutomaton_2))
 
