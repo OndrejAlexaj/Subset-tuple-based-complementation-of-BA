@@ -52,11 +52,10 @@ def determinise(automaton,interim_automaton,prev_state,contained_states):
 def complement(automaton):
     automaton = complete_automaton(automaton)
 
-    interim_automaton = BuchiAutomaton(set(),set(),dict(),"",set())
-    interim_automaton.alphabet = automaton.alphabet
-    interim_automaton.initial = (frozenset({automaton.initial}),)
-    interim_automaton.states.add(interim_automaton.initial)
+    upper_part = BuchiAutomaton(set(),set(),dict(),"",set())
+    upper_part.alphabet = automaton.alphabet
+    upper_part.initial = (frozenset({automaton.initial}),)
+    upper_part.states.add(upper_part.initial)
+    upper_part = determinise(automaton,upper_part,upper_part.initial)
 
-    interim_automaton = determinise(automaton,interim_automaton,interim_automaton.initial,contained_states)
-
-    return interim_automaton
+    return upper_part
