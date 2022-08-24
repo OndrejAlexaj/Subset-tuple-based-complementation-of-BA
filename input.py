@@ -60,4 +60,4 @@ def create_automaton(description_file):
 
     description.close()
 
-    return complete_automaton(automaton)
+    return automaton
