@@ -19,20 +19,11 @@ def is_breakpoint(state):
     
     return True
 
-def remove_duplicates(arr):
-    result_ls = []
-    for item in arr:
-        if item not in result_ls:
-            result_ls.append(item)
-    
-    return result_ls
-
 def determinise(automaton,interim_automaton,prev_state,upper):
     succ_tmp, acc_states, new_states, colored = set(), set(), set(), set()
-    tmp_states = []
+    tmp_states, colored_states = [], []
     original_len = len(interim_automaton.states)
     visited = init_visited(automaton)
-    colored_states = []
     breakpoint = is_breakpoint(prev_state)
     accepting = True
     
@@ -87,13 +78,11 @@ def determinise(automaton,interim_automaton,prev_state,upper):
 
         if len(tmp_states)!=0:
             if upper:
-                tmp_states = remove_duplicates(tmp_states)
                 interim_automaton.states.add(tuple(reversed(tmp_states)))
                 mark_transition(interim_automaton,[prev_state,symbol,tuple(reversed(tmp_states))])
                 new_states.add(tuple(reversed(tmp_states)))
         
         if len(colored_states)!=0:
-            colored_states = remove_duplicates(colored_states)
             interim_automaton.states.add(tuple(reversed(colored_states)))
             mark_transition(interim_automaton,[prev_state,symbol,tuple(reversed(colored_states))])
             colored.add(tuple(reversed(colored_states)))
