@@ -82,7 +82,7 @@ def determinise(automaton,interim_automaton,prev_state,upper):
                 mark_transition(interim_automaton,[prev_state,symbol,tuple(reversed(tmp_states))])
                 new_states.add(tuple(reversed(tmp_states)))
         
-        if len(colored_states)!=0:
+        if len(colored_states)!=0 and colored_states[0][1]!=2:
             interim_automaton.states.add(tuple(reversed(colored_states)))
             mark_transition(interim_automaton,[prev_state,symbol,tuple(reversed(colored_states))])
             colored.add(tuple(reversed(colored_states)))
