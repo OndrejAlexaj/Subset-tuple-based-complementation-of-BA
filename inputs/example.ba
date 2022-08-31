@@ -1,6 +1,10 @@
-A
-a,A->A
-b,A->B
-a,B->A
-b,B->B
-B
+qin
+a,qin->qin
+b,qin->qin
+a,qin->q1
+b,qin->q1
+a,q1->q2
+b,q1->q1
+a,q2->q2
+b,q2->q2
+q1
