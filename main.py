@@ -10,5 +10,5 @@ from output import *
 from edit_BA import *
 from complement import *
 
-buchiAutomaton_1 = create_automaton("inputs/example.ba")
+buchiAutomaton_1 = BA_format("inputs/example.ba")
 draw_graph(complement(buchiAutomaton_1))

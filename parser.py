@@ -3,7 +3,7 @@ from buchi_automaton import *
 from edit_BA import *
 
 # returns [q1,a,q2]
-def parse(line):
+def split_line_BA(line):
     tmp = line.split(",")
     parsed = tmp[1].split("->")
     parsed.insert(1, tmp[0])
@@ -19,7 +19,7 @@ def update_automaton(automaton, parsed):
     return automaton
 
 # returns BuchiAutomaton created according file with its description
-def create_automaton(description_file):
+def BA_format(description_file):
     automaton = BuchiAutomaton(set(),set(),dict(),"",set())
 
     description = open(description_file, "r")
@@ -33,7 +33,7 @@ def create_automaton(description_file):
 
         line = line.strip('\n') # remove '\n'
         if "," in line: # parsing makes sense only when in transitions (sign that we are reading transition is ',')
-            parsed = parse(line)
+            parsed = split_line_BA(line)
             in_transitions = True
         else:
             in_transitions = False

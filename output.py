@@ -1,7 +1,7 @@
 from enum import auto
 from buchi_automaton import *
 
-def create_output(automaton):
+def output_BA_format(automaton):
     f = open("output.ba","w")
 
     f.write(str(automaton.initial)+"\n")
