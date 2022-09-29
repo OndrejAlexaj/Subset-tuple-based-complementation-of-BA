@@ -1,12 +1,12 @@
 from hashlib import new
 from venv import create
 from buchi_automaton import *
-from input import *
+from parse_BA_format import *
 from draw_automaton import *
 from union import *
 from emptiness import *
 from intersection import *
-from output import *
+from output_BA_format import *
 from edit_BA import *
 from complement import *
 

@@ -1,6 +1,6 @@
 from enum import auto
 from buchi_automaton import *
-from input import *  
+from parse_BA_format import *  
 
 # source:
 # https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
