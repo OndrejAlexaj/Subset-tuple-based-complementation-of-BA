@@ -1,4 +1,4 @@
-# Tuple-based-complementation-of-BA
+# Subset-tuple-based-complementation-of-BA
 
 Run using:
   ```
