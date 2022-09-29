@@ -1,6 +1,8 @@
+from ast import parse
 from enum import auto
 from buchi_automaton import *
 from edit_BA import *
+import re
 
 # returns [q1,a,q2]
 def split_line_BA(line):
@@ -18,7 +20,7 @@ def update_automaton(automaton, parsed):
 
     return automaton
 
-# returns BuchiAutomaton created according file with its description
+# returns BuchiAutomaton created according .ba file
 def BA_format(description_file):
     automaton = BuchiAutomaton(set(),set(),dict(),"",set())
 
@@ -61,3 +63,66 @@ def BA_format(description_file):
     description.close()
 
     return automaton
+
+def parse_body(description,symbols,automaton):
+    while True:
+        line = description.readline()
+        if "--END--" in line:
+            break
+        
+        if "State:" in line:
+            tmp = line[6:]
+            tmp = tmp.split()
+            state = int(tmp[0])
+            if len(tmp)>1:
+                automaton.accepting.add(state)
+            automaton.states.add(state)
+        else:
+            tmp = line.split()
+            alphabet_member = tmp[0][1:-1]
+            if alphabet_member[0]=="!":
+                alphabet_member = "¬"+symbols[int(alphabet_member[1])]
+            elif alphabet_member[0]=="t":
+                alphabet_member = 1
+            else:
+                alphabet_member = symbols[int(alphabet_member)]
+            automaton.alphabet.add(alphabet_member)
+            mark_transition(automaton,[state,alphabet_member,int(tmp[1])])
+
+    return automaton
+
+
+def HOA_format(description_file):
+    automaton = BuchiAutomaton(set(),set(),dict(),"",set())
+
+    description = open(description_file, "r")
+
+    states_num = 0
+    states, initials, symbols = [], [], []
+
+    while True:
+        line = description.readline()
+        if line == "":
+            break
+
+        if "States:" in line:
+            states_num = line[7:]
+            states_num = int(states_num.strip())
+            states = [x for x in range(states_num)]
+        elif "Start:" in line:
+            tmp = line[6:]
+            tmp = tmp.strip()
+            initials.append(int(tmp))
+            automaton.initial = int(tmp)
+        elif "AP:" in line:
+            tmp = line[3:]
+            tmp = tmp.split()
+            APs_num = int(tmp[0])
+            for i in range(APs_num):
+                symbols.append(tmp[i+1])
+        elif "--BODY--" in line:
+            automaton = parse_body(description,symbols,automaton)
+            break
+    
+    return automaton
+             

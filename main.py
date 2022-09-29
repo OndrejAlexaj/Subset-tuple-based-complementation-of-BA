@@ -10,5 +10,5 @@ from output import *
 from edit_BA import *
 from complement import *
 
-buchiAutomaton_1 = BA_format("inputs/example.ba")
-draw_graph(complement(buchiAutomaton_1))
+buchiAutomaton_1 = HOA_format("inputs/in.hoa")
+draw_graph(buchiAutomaton_1)

@@ -24,7 +24,7 @@ def draw_edges(automaton, automaton_image):
     for state_1 in automaton.transition:
         for in_symbol in automaton.transition[state_1]:
             for state_2 in automaton.transition[state_1][in_symbol]:
-                automaton_image.edge(str(state_1), str(state_2), label = in_symbol)
+                automaton_image.edge(str(state_1), str(state_2), label = str(in_symbol))
 
 def draw_graph(automaton):
     automaton_image = graphviz.Digraph('BA')
