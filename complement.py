@@ -1,6 +1,8 @@
 from buchi_automaton import *
 from edit_BA import *
 
+pocitadlo = 0
+
 class MyFrozenSet(frozenset):
     def __repr__(self):
         return "{"+'{}'.format(', '.join(map(repr, self)))+"}"
@@ -21,6 +23,8 @@ def is_breakpoint(state):
 
 # parameter "upper" indicates wheter we also build upper automaton or not
 def determinise(automaton,interim_automaton,curr_state,upper):
+    global pocitadlo
+    pocitadlo+=1
     succ_tmp, acc_states, new_states, new_colored = set(), set(), set(), set()
     tmp_states, colored_tmp = [], []
     original_len = len(interim_automaton.states)
@@ -101,13 +105,16 @@ def determinise(automaton,interim_automaton,curr_state,upper):
         colored_tmp = []
         accepting = True
         visited = init_visited(automaton)
+    
+    #if pocitadlo>100000:
+      #  return interim_automaton
 
     if original_len!=len(interim_automaton.states):
         for state in new_states:
             interim_automaton = determinise(automaton,interim_automaton,state,True)
         for state in new_colored:
             interim_automaton = determinise(automaton,interim_automaton,state,False)
-            
+
     return interim_automaton
 
 # Returns complement of the given automaton.
@@ -116,7 +123,7 @@ def determinise(automaton,interim_automaton,curr_state,upper):
 def complement(automaton):
     automaton = complete_automaton(automaton)
 
-    upper_part = BuchiAutomaton(set(),set(),dict(),"",set())
+    upper_part = BuchiAutomaton(set(),set(),dict(),"",set(),automaton.symbols)
     upper_part.alphabet = automaton.alphabet
     upper_part.initial = ((MyFrozenSet({automaton.initial}),-1),)
     upper_part.states.add(upper_part.initial)

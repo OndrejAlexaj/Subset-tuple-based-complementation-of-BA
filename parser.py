@@ -64,7 +64,7 @@ def BA_format(description_file):
 
     return automaton
 
-def parse_body(description,symbols,automaton):
+def parse_body(description,automaton):
     while True:
         line = description.readline()
         if "--END--" in line:
@@ -74,18 +74,13 @@ def parse_body(description,symbols,automaton):
             tmp = line[6:]
             tmp = tmp.split()
             state = int(tmp[0])
-            if len(tmp)>1:
+            if '{' in tmp:
                 automaton.accepting.add(state)
             automaton.states.add(state)
         else:
             tmp = line.split()
             alphabet_member = tmp[0][1:-1]
-            if alphabet_member[0]=="!":
-                alphabet_member = "¬"+symbols[int(alphabet_member[1])]
-            elif alphabet_member[0]=="t":
-                alphabet_member = 1
-            else:
-                alphabet_member = symbols[int(alphabet_member)]
+
             automaton.alphabet.add(alphabet_member)
             mark_transition(automaton,[state,alphabet_member,int(tmp[1])])
 
@@ -93,12 +88,12 @@ def parse_body(description,symbols,automaton):
 
 
 def HOA_format(description_file):
-    automaton = BuchiAutomaton(set(),set(),dict(),"",set())
+    automaton = BuchiAutomaton(set(),set(),dict(),"",set(),[])
 
     description = open(description_file, "r")
 
     states_num = 0
-    states, initials, symbols = [], [], []
+    initials = []
 
     while True:
         line = description.readline()
@@ -108,7 +103,7 @@ def HOA_format(description_file):
         if "States:" in line:
             states_num = line[7:]
             states_num = int(states_num.strip())
-            states = [x for x in range(states_num)]
+            automaton.states = {x for x in range(states_num)}
         elif "Start:" in line:
             tmp = line[6:]
             tmp = tmp.strip()
@@ -118,10 +113,9 @@ def HOA_format(description_file):
             tmp = line[3:]
             tmp = tmp.split()
             APs_num = int(tmp[0])
-            for i in range(APs_num):
-                symbols.append(tmp[i+1])
+            automaton.symbols = [tmp[i+1] for i in range(APs_num)]
         elif "--BODY--" in line:
-            automaton = parse_body(description,symbols,automaton)
+            automaton = parse_body(description,automaton)
             break
     
     return automaton

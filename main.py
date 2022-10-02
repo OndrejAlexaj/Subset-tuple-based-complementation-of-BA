@@ -10,5 +10,9 @@ from output import *
 from edit_BA import *
 from complement import *
 
-buchiAutomaton_1 = HOA_format("inputs/in.hoa")
-draw_graph(buchiAutomaton_1)
+description_file = "inputs/in.hoa"
+
+buchiAutomaton_1 = HOA_format(description_file)
+complemented = complement(buchiAutomaton_1)
+draw_graph(complemented)
+output_HOA_format(complemented,description_file)

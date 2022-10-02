@@ -30,7 +30,6 @@ def draw_graph(automaton):
     automaton_image = graphviz.Digraph('BA')
     automaton_image.attr(rankdir='LR')
     automaton_image.attr('node', shape = 'circle')
-
     draw_initial(automaton, automaton_image)  
     draw_states(automaton, automaton_image)
     draw_edges(automaton, automaton_image)

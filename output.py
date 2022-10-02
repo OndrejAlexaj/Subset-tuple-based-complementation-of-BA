@@ -15,3 +15,36 @@ def output_BA_format(automaton):
         f.write(str(state)+"\n")
         
     f.close()
+
+def output_HOA_format(automaton,description_file):
+    new_name = description_file[:-4]+"_v2"+".hoa"
+    print(new_name)
+    f = open(new_name, "w")
+    f.write("HOA: v2\n")
+    f.write(f"States: {len(automaton.states)}\n")
+    f.write("acc-name: Buchi\n")
+    f.write("Start: "+str(automaton.initial)+"\n")
+    f.write("Acceptance: 1 Inf(0)\n")
+    f.write("properties: explicit-labels state-acc trans-labels\n")
+
+    f.write(f"AP: {len(automaton.symbols)}")
+    for i in automaton.symbols:
+        f.write(i+" ")
+    f.write("\n")
+
+    # body
+    f.write("--BODY--\n")
+    for state in automaton.states:
+        f.write("State: "+str(state))
+        if i in automaton.accepting:
+            f.write(" \{ 0 \}")
+        f.write("\n")
+
+        if automaton.transition.get(state) is not None:
+            for alph_member in automaton.transition[state]:
+                if automaton.transition[state].get(alph_member) is not None:
+                    for next_state in automaton.transition[state][alph_member]:
+                        f.write(f"\t[{alph_member}] {next_state}\n")
+
+    f.write("--END--\n")
+    f.close()
