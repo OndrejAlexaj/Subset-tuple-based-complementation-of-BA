@@ -18,12 +18,11 @@ def output_BA_format(automaton):
 
 def output_HOA_format(automaton,description_file):
     new_name = description_file[:-4]+"_v2"+".hoa"
-    print(new_name)
     f = open(new_name, "w")
     f.write("HOA: v2\n")
     f.write(f"States: {len(automaton.states)}\n")
-    f.write("acc-name: Buchi\n")
     f.write("Start: "+str(automaton.initial)+"\n")
+    f.write("acc-name: Buchi\n")
     f.write("Acceptance: 1 Inf(0)\n")
     f.write("properties: explicit-labels state-acc trans-labels\n")
 

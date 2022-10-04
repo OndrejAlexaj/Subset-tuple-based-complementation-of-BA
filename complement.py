@@ -21,6 +21,62 @@ def is_breakpoint(state):
     
     return True
 
+#def replace_states_trans(automaton,translation):
+#    for state in automaton.transition:
+#        for symbol in automaton.transition[state]:
+#            for next_state in 
+
+def merge_consecutive(automaton):
+    new_state = []
+    new_set_1s = set()
+    new_set_2s = set()
+    new_states = set()
+
+    # firstly merge consecutive 1s and consecutive 2s separately
+    for state in automaton.states:
+        for set_and_coloring in state:
+            if set_and_coloring[1] == 1:
+                new_set_1s = new_set_1s.union(new_set_1s,set_and_coloring[0])
+            else:
+                if len(new_set_1s) != 0:
+                    new_state.append((MyFrozenSet(new_set_1s,1)))
+                    new_set_1s = set()
+                if set_and_coloring[1] == 2:
+                    new_set_2s = new_set_2s.union(new_set_2s,set_and_coloring[0])
+                else:
+                    if len(new_set_2s) != 0:
+                        new_state.append((MyFrozenSet(new_set_2s),2))
+                        new_set_2s = set()
+                    new_state.append(set_and_coloring)
+        
+        if len(new_set_1s) != 0:
+            new_state.append((MyFrozenSet(new_set_1s,1)))
+            new_set_1s = set()
+        if len(new_set_2s) != 0:
+            new_state.append((MyFrozenSet(new_set_2s),2))
+            new_set_2s = set()
+        
+        new_states.add(tuple(new_state))
+        translation[state] = tuple(new_state)
+        automaton.transition[tuple(new_state)] = automaton.transition[state]
+        del automaton.transition[state]
+        new_state = []
+
+    automaton.states = new_states
+    #automaton = replace_states_trans(automaton,translation)
+
+    # secondly merge 2 followed by 1
+
+
+def optimise(automaton):
+    translation = dict()
+
+    translation = merge_consec(automaton,translation)
+
+    
+
+    return automaton
+
 # parameter "upper" indicates wheter we also build upper automaton or not
 def determinise(automaton,interim_automaton,curr_state,upper):
     global pocitadlo
@@ -128,5 +184,7 @@ def complement(automaton):
     upper_part.initial = ((MyFrozenSet({automaton.initial}),-1),)
     upper_part.states.add(upper_part.initial)
     complemented = determinise(automaton,upper_part,upper_part.initial,True)
+
+    optimise(complemented)
 
     return complemented
