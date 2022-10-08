@@ -1,8 +1,6 @@
 from buchi_automaton import *
 from edit_BA import *
 
-pocitadlo = 0
-
 class MyFrozenSet(frozenset):
     def __repr__(self):
         return "{"+'{}'.format(', '.join(map(repr, self)))+"}"
@@ -21,16 +19,50 @@ def is_breakpoint(state):
     
     return True
 
-#def replace_states_trans(automaton,translation):
-#    for state in automaton.transition:
-#        for symbol in automaton.transition[state]:
-#            for next_state in 
+def replace_states_trans(automaton,translation,new_automaton):
+    for state in automaton.transition:
+        for symbol in automaton.transition[state]:
+            for next_state in automaton.transition[state][symbol]:
+                new_automaton = mark_transition(new_automaton,[translation[state],symbol,translation[next_state]])
 
-def merge_consecutive(automaton):
+    return new_automaton
+
+def join2(automaton,translation):
+    new_state = []
+    new_set = set()
+    was_color_2 = False
+    new_automaton = BuchiAutomaton(set(),set(),dict(),"",set(),automaton.symbols)
+
+    # firstly merge consecutive 1s and consecutive 2s separately
+    for state in automaton.states:
+        #print(state)
+        for set_and_coloring in state:
+            if set_and_coloring[1] == 2:
+                if len(new_set) != 0:
+                    new_state.append((MyFrozenSet(new_set),2))
+                was_color_2 = True
+                new_set = set_and_coloring[0]
+            elif set_and_coloring[1] == 1 and was_color_2:
+                new_set = new_set.union(new_set,set_and_coloring[0])
+            else:
+                if len(new_set) != 0:
+                    new_state.append((MyFrozenSet(new_set),2))
+                    new_set = set()
+                was_color_2 = False
+                new_state.append(set_and_coloring)
+        #print(new_state)
+        #print("----------------------------------------------\n")
+        new_automaton.states.add(tuple(new_state))
+        translation[state] = tuple(new_state)
+        new_state = []
+    new_automaton.initial = translation[automaton.initial]
+    return replace_states_trans(automaton,translation,new_automaton)
+
+def join(automaton,translation):
     new_state = []
     new_set_1s = set()
     new_set_2s = set()
-    new_states = set()
+    new_automaton = BuchiAutomaton(set(),set(),dict(),"",set(),automaton.symbols)
 
     # firstly merge consecutive 1s and consecutive 2s separately
     for state in automaton.states:
@@ -39,7 +71,7 @@ def merge_consecutive(automaton):
                 new_set_1s = new_set_1s.union(new_set_1s,set_and_coloring[0])
             else:
                 if len(new_set_1s) != 0:
-                    new_state.append((MyFrozenSet(new_set_1s,1)))
+                    new_state.append((MyFrozenSet(new_set_1s),1))
                     new_set_1s = set()
                 if set_and_coloring[1] == 2:
                     new_set_2s = new_set_2s.union(new_set_2s,set_and_coloring[0])
@@ -50,37 +82,30 @@ def merge_consecutive(automaton):
                     new_state.append(set_and_coloring)
         
         if len(new_set_1s) != 0:
-            new_state.append((MyFrozenSet(new_set_1s,1)))
+            new_state.append((MyFrozenSet(new_set_1s),1))
             new_set_1s = set()
         if len(new_set_2s) != 0:
             new_state.append((MyFrozenSet(new_set_2s),2))
             new_set_2s = set()
-        
-        new_states.add(tuple(new_state))
+
+        new_automaton.states.add(tuple(new_state))
         translation[state] = tuple(new_state)
-        automaton.transition[tuple(new_state)] = automaton.transition[state]
-        del automaton.transition[state]
         new_state = []
 
-    automaton.states = new_states
-    #automaton = replace_states_trans(automaton,translation)
-
-    # secondly merge 2 followed by 1
+    new_automaton.initial = translation[automaton.initial]
+    return replace_states_trans(automaton,translation,new_automaton)
 
 
 def optimise(automaton):
     translation = dict()
 
-    translation = merge_consec(automaton,translation)
-
-    
-
-    return automaton
+    new_automaton = join(automaton,translation)
+    new_automaton = join2(new_automaton,translation)
+    print(len(new_automaton.states))
+    return new_automaton
 
 # parameter "upper" indicates wheter we also build upper automaton or not
 def determinise(automaton,interim_automaton,curr_state,upper):
-    global pocitadlo
-    pocitadlo+=1
     succ_tmp, acc_states, new_states, new_colored = set(), set(), set(), set()
     tmp_states, colored_tmp = [], []
     original_len = len(interim_automaton.states)
@@ -161,9 +186,6 @@ def determinise(automaton,interim_automaton,curr_state,upper):
         colored_tmp = []
         accepting = True
         visited = init_visited(automaton)
-    
-    #if pocitadlo>100000:
-      #  return interim_automaton
 
     if original_len!=len(interim_automaton.states):
         for state in new_states:
@@ -185,6 +207,5 @@ def complement(automaton):
     upper_part.states.add(upper_part.initial)
     complemented = determinise(automaton,upper_part,upper_part.initial,True)
 
-    optimise(complemented)
-
-    return complemented
+    return optimise(complemented)
+    #return complemented

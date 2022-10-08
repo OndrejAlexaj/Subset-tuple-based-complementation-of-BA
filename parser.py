@@ -22,7 +22,7 @@ def update_automaton(automaton, parsed):
 
 # returns BuchiAutomaton created according .ba file
 def BA_format(description_file):
-    automaton = BuchiAutomaton(set(),set(),dict(),"",set())
+    automaton = BuchiAutomaton(set(),set(),dict(),"",set(),set())
 
     description = open(description_file, "r")
     expecting_initial = True
