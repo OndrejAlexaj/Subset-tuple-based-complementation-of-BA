@@ -33,9 +33,7 @@ def join2(automaton,translation):
     was_color_2 = False
     new_automaton = BuchiAutomaton(set(),set(),dict(),"",set(),automaton.symbols)
 
-    # firstly merge consecutive 1s and consecutive 2s separately
     for state in automaton.states:
-        #print(state)
         for set_and_coloring in state:
             if set_and_coloring[1] == 2:
                 if len(new_set) != 0:
@@ -50,11 +48,13 @@ def join2(automaton,translation):
                     new_set = set()
                 was_color_2 = False
                 new_state.append(set_and_coloring)
-        #print(new_state)
-        #print("----------------------------------------------\n")
+        if(len(new_set) != 0):
+            new_state.append((MyFrozenSet(new_set),2))
+            new_set = set()
         new_automaton.states.add(tuple(new_state))
         translation[state] = tuple(new_state)
         new_state = []
+        was_color_2 = False
     new_automaton.initial = translation[automaton.initial]
     return replace_states_trans(automaton,translation,new_automaton)
 
@@ -98,10 +98,11 @@ def join(automaton,translation):
 
 def optimise(automaton):
     translation = dict()
-
+    print(len(automaton.states))
     new_automaton = join(automaton,translation)
     new_automaton = join2(new_automaton,translation)
     print(len(new_automaton.states))
+    print("---------------\n")
     return new_automaton
 
 # parameter "upper" indicates wheter we also build upper automaton or not

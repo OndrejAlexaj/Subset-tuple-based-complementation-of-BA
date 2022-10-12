@@ -25,7 +25,7 @@ def output_HOA_format(automaton,description_file):
 
     new_name = description_file[:-4]+"_v2"+".hoa"
     f = open(new_name, "w")
-    f.write("HOA: v2\n")
+    f.write("HOA: v1\n")
     f.write(f"States: {len(automaton.states)}\n")
     f.write("Start: "+str(translation[automaton.initial])+"\n")
     f.write("acc-name: Buchi\n")
