@@ -95,14 +95,16 @@ def join(automaton,translation):
     new_automaton.initial = translation[automaton.initial]
     return replace_states_trans(automaton,translation,new_automaton)
 
+# adds color 3 so each state contains at most one color 3 xor 2
+def recolor(automaton):
 
 def optimise(automaton):
     translation = dict()
-    print(len(automaton.states))
     new_automaton = join(automaton,translation)
     new_automaton = join2(new_automaton,translation)
+    new_automaton = recolor(automaton)
     print(len(new_automaton.states))
-    print("---------------\n")
+
     return new_automaton
 
 # parameter "upper" indicates wheter we also build upper automaton or not
@@ -111,88 +113,104 @@ def determinise(automaton,interim_automaton,curr_state,upper):
     tmp_states, colored_tmp = [], []
     original_len = len(interim_automaton.states)
     visited = init_visited(automaton) # to preserve disjointness of sets in one state
-    breakpoint = is_breakpoint(curr_state)
     accepting = True
+    keep = True
+    processed = set()
 
-    for symbol in interim_automaton.alphabet:
-        for states_set_pos in reversed(range(len(curr_state))):
-            for state in curr_state[states_set_pos][0]:
-                for succ in automaton.transition[state][symbol]:
-                    # here we distinguish (and store differently) accepting
-                    # and non-accepting states
-                    if succ in automaton.accepting:
-                        if not visited[succ]:
-                            acc_states.add(succ)
-                            visited[succ] = True
-                    else:
-                        if not visited[succ]:
-                            succ_tmp.add(succ)
-                            visited[succ] = True
+    while(1):
+        breakpoint = is_breakpoint(curr_state)
+        if(curr_state not in processed):    
+            for symbol in interim_automaton.alphabet:
+                for states_set_pos in reversed(range(len(curr_state))):
+                    for state in curr_state[states_set_pos][0]:
+                        for succ in automaton.transition[state][symbol]:
+                            # here we distinguish (and store differently) accepting
+                            # and non-accepting states
+                            if succ in automaton.accepting:
+                                if not visited[succ]:
+                                    acc_states.add(succ)
+                                    visited[succ] = True
+                            else:
+                                if not visited[succ]:
+                                    succ_tmp.add(succ)
+                                    visited[succ] = True
 
-            # "tmp_states" stores what state we have build so far.
-            if len(acc_states)!=0:
-                if upper:
-                    tmp_states.append((MyFrozenSet(acc_states),-1))
+                    # "tmp_states" stores what state we have build so far.
+                    if len(acc_states)!=0:
+                        if upper:
+                            tmp_states.append((MyFrozenSet(acc_states),-1))
 
-                # deciding next coloring (based on the paper)
-                if breakpoint and (curr_state[states_set_pos][1]==0 or curr_state[states_set_pos][1]==-1):
-                    colored_tmp.append((MyFrozenSet(acc_states),2))
-                elif not breakpoint and (curr_state[states_set_pos][1]==0 or curr_state[states_set_pos][1]==-1):
-                    colored_tmp.append((MyFrozenSet(acc_states),1))
-                elif breakpoint and curr_state[states_set_pos][1]==1:
-                    colored_tmp.append((MyFrozenSet(acc_states),2))
-                else:
-                    if curr_state[states_set_pos][1]==-1:
-                        colored_tmp.append((MyFrozenSet(acc_states),0))
-                    else:
-                        colored_tmp.append((MyFrozenSet(acc_states),curr_state[states_set_pos][1])) 
+                        # deciding next coloring (based on the paper)
+                        if breakpoint and (curr_state[states_set_pos][1]==0 or curr_state[states_set_pos][1]==-1):
+                            colored_tmp.append((MyFrozenSet(acc_states),2))
+                        elif not breakpoint and (curr_state[states_set_pos][1]==0 or curr_state[states_set_pos][1]==-1):
+                            colored_tmp.append((MyFrozenSet(acc_states),1))
+                        elif breakpoint and curr_state[states_set_pos][1]==1:
+                            colored_tmp.append((MyFrozenSet(acc_states),2))
+                        else:
+                            if curr_state[states_set_pos][1]==-1:
+                                colored_tmp.append((MyFrozenSet(acc_states),0))
+                            else:
+                                colored_tmp.append((MyFrozenSet(acc_states),curr_state[states_set_pos][1])) 
 
-                if colored_tmp[-1][1]==2: # accepting is only the state that doesn't conaint
-                    accepting = False        # 2 colored component
+                        if colored_tmp[-1][1]==2: # accepting is only the state that doesn't conaint
+                            accepting = False        # 2 colored component
 
-            if len(succ_tmp)!=0:
-                if upper:
-                    tmp_states.append((MyFrozenSet(succ_tmp),-1))    
+                    if len(succ_tmp)!=0:
+                        if upper:
+                            tmp_states.append((MyFrozenSet(succ_tmp),-1))    
 
-                # deciding next coloring (based on the paper)
-                if breakpoint and curr_state[states_set_pos][1]==1:
-                    colored_tmp.append((MyFrozenSet(succ_tmp),2)) 
-                else:
-                    if curr_state[states_set_pos][1]==-1:
-                        colored_tmp.append((MyFrozenSet(succ_tmp),0))
-                    else:
-                        colored_tmp.append((MyFrozenSet(succ_tmp),curr_state[states_set_pos][1]))    
+                        # deciding next coloring (based on the paper)
+                        if breakpoint and curr_state[states_set_pos][1]==1:
+                            colored_tmp.append((MyFrozenSet(succ_tmp),2)) 
+                        else:
+                            if curr_state[states_set_pos][1]==-1:
+                                colored_tmp.append((MyFrozenSet(succ_tmp),0))
+                            else:
+                                colored_tmp.append((MyFrozenSet(succ_tmp),curr_state[states_set_pos][1]))    
 
-                if colored_tmp[-1][1]==2:
-                    accepting = False
+                        if colored_tmp[-1][1]==2:
+                            accepting = False
 
-            acc_states = set()
-            succ_tmp = set()
+                    acc_states = set()
+                    succ_tmp = set()
 
-        if len(tmp_states)!=0 and upper:
-            interim_automaton.states.add(tuple(reversed(tmp_states)))
-            mark_transition(interim_automaton,[curr_state,symbol,tuple(reversed(tmp_states))])
-            new_states.add(tuple(reversed(tmp_states)))
-        
-        # "colored_tmp[0][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
-        # component in state has color 2, then it doesn't need to be stored
-        if len(colored_tmp)!=0 and colored_tmp[0][1]!=2:
-            interim_automaton.states.add(tuple(reversed(colored_tmp)))
-            mark_transition(interim_automaton,[curr_state,symbol,tuple(reversed(colored_tmp))])
-            new_colored.add(tuple(reversed(colored_tmp)))
-            if accepting:
-                interim_automaton.accepting.add(tuple(reversed(colored_tmp)))
+                if len(tmp_states)!=0 and upper:
+                    interim_automaton.states.add(tuple(reversed(tmp_states)))
+                    mark_transition(interim_automaton,[curr_state,symbol,tuple(reversed(tmp_states))])
+                    new_states.add(tuple(reversed(tmp_states)))
+                
+                # "colored_tmp[0][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
+                # component in state has color 2, then it doesn't need to be stored
+                if len(colored_tmp)!=0 and colored_tmp[0][1]!=2:
+                    interim_automaton.states.add(tuple(reversed(colored_tmp)))
+                    mark_transition(interim_automaton,[curr_state,symbol,tuple(reversed(colored_tmp))])
+                    new_colored.add(tuple(reversed(colored_tmp)))
+                    if accepting:
+                        interim_automaton.accepting.add(tuple(reversed(colored_tmp)))
 
-        tmp_states = []
-        colored_tmp = []
-        accepting = True
-        visited = init_visited(automaton)
+                tmp_states = []
+                colored_tmp = []
+                accepting = True
+                visited = init_visited(automaton)
 
-    if original_len!=len(interim_automaton.states):
-        for state in new_states:
-            interim_automaton = determinise(automaton,interim_automaton,state,True)
-        for state in new_colored:
-            interim_automaton = determinise(automaton,interim_automaton,state,False)
+            processed.add(curr_state)
+        new_states.discard(curr_state)
+        if(len(new_states) == 0):
+            upper = False
+            new_colored.discard(curr_state)
+            if(len(new_colored)==0):
+                break
+            curr_state = new_colored.pop()  
+        else:
+            curr_state = new_states.pop()
+
+
+    #if original_len!=len(interim_automaton.states):
+        #for state in new_states:
+            #interim_automaton = determinise(automaton,interim_automaton,state,True)
+       #for state in new_colored:
+            #interim_automaton = determinise(automaton,interim_automaton,state,False)
 
     return interim_automaton
 
