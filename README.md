@@ -24,5 +24,5 @@ For example:<br />
   <br />
   In case we do not want to optimise at all, run it this way (ommit optimization args):<br />
   ```
-  python3 main.py input.hoa
+  python3 main.py file
   ```
