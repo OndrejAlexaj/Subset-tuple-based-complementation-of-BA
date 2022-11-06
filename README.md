@@ -15,7 +15,7 @@ For example:
   ```
   python3 main.py input.hoa 0 1 2 3
   ```
-  means that we want to complement BA saved in HOA format using all possible optimizations.
+  means that we want to complement BA saved in HOA format using all possible optimizations.__
   Whereas using:
    ```
   python3 main.py input.ba 0 1 2
