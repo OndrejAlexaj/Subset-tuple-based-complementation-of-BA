@@ -27,7 +27,8 @@ def replace_states_trans(automaton,translation,new_automaton):
 
     return new_automaton
 
-def join2(automaton,translation):
+def join2(automaton):
+    translation = dict()
     new_state = []
     new_set = set()
     was_color_2 = False
@@ -58,7 +59,8 @@ def join2(automaton,translation):
     new_automaton.initial = translation[automaton.initial]
     return replace_states_trans(automaton,translation,new_automaton)
 
-def join(automaton,translation):
+def join(automaton):
+    translation = dict()
     new_state = []
     new_set_1s = set()
     new_set_2s = set()
@@ -95,20 +97,18 @@ def join(automaton,translation):
     new_automaton.initial = translation[automaton.initial]
     return replace_states_trans(automaton,translation,new_automaton)
 
-# adds color 3 so each state contains at most one color 3 xor 2
-def recolor(automaton):
-
-def optimise(automaton):
-    translation = dict()
-    new_automaton = join(automaton,translation)
-    new_automaton = join2(new_automaton,translation)
-    new_automaton = recolor(automaton)
-    print(len(new_automaton.states))
+def merge(automaton):
+    new_automaton = join(automaton)
+    new_automaton = join2(new_automaton)
 
     return new_automaton
 
+# adds color 3 so each state contains at most one color 3 xor 2
+def color_3(automaton):
+
+
 # parameter "upper" indicates wheter we also build upper automaton or not
-def determinise(automaton,interim_automaton,curr_state,upper):
+def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_states,add_color_3):
     succ_tmp, acc_states, new_states, new_colored = set(), set(), set(), set()
     tmp_states, colored_tmp = [], []
     original_len = len(interim_automaton.states)
@@ -181,8 +181,8 @@ def determinise(automaton,interim_automaton,curr_state,upper):
                     new_states.add(tuple(reversed(tmp_states)))
                 
                 # "colored_tmp[0][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
-                # component in state has color 2, then it doesn't need to be stored
-                if len(colored_tmp)!=0 and colored_tmp[0][1]!=2:
+                # component in state has color 2, then it doesn't need to be stored (can be altered by argument --> rightmost_2s)
+                if len(colored_tmp)!=0 and (colored_tmp[0][1]!=2 or not rightmost_2s):
                     interim_automaton.states.add(tuple(reversed(colored_tmp)))
                     mark_transition(interim_automaton,[curr_state,symbol,tuple(reversed(colored_tmp))])
                     new_colored.add(tuple(reversed(colored_tmp)))
@@ -217,14 +217,21 @@ def determinise(automaton,interim_automaton,curr_state,upper):
 # Returns complement of the given automaton.
 # State name consists of tuple of sets for
 # better understanding of output.
-def complement(automaton):
+def complement(automaton,rightmost_2s,merge_states,add_color_3):
     automaton = complete_automaton(automaton)
 
     upper_part = BuchiAutomaton(set(),set(),dict(),"",set(),automaton.symbols)
     upper_part.alphabet = automaton.alphabet
     upper_part.initial = ((MyFrozenSet({automaton.initial}),-1),)
     upper_part.states.add(upper_part.initial)
-    complemented = determinise(automaton,upper_part,upper_part.initial,True)
+    complemented = determinise(automaton,upper_part,upper_part.initial,True,rightmost_2s,merge_states,add_color_3)
 
-    return optimise(complemented)
-    #return complemented
+    if merge_states:
+        complemented = merge(complemented)
+    
+    if add_color_3:
+        complemented = color_3(complemented)
+
+    print(len(complemented.states))
+
+    return complemented
