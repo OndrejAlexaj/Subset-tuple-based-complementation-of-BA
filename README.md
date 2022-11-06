@@ -13,14 +13,14 @@ Run using:
 For example:<br />
   using:<br />
   ```
-  python3 main.py input.hoa 0 1 2 3
+  python3 main.py input.hoa 0 1 2
   ```
   means that we want to complement BA saved in HOA format using all possible optimizations.<br />
   Whereas using:<br />
    ```
-  python3 main.py input.ba 0 1 2
+  python3 main.py input.ba 0 1
   ```
-  means that we want to complement BA saved in BA format using just first 3 optimizations.<br />
+  means that we want to complement BA saved in BA format using just first 2 optimizations.<br />
   <br />
   In case we do not want to optimise at all, run it this way (ommit optimization args):<br />
   ```
