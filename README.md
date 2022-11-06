@@ -6,7 +6,8 @@ Run using:
   ```
   where:<br />
     file: .hoa or .ba file  (when using HOA, just ... are accepted)<br />
-    optimization:  0 - optimizations turned off<br />
+    optimization:  <br />
+                   0 - optimizations turned off<br />
                    1 - throw away states with 2colored rightmost component<br />
                    2 - merging states<br />
                    3 - new coloring (new color 3)<br />
