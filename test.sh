@@ -1,3 +1,4 @@
+#!/bin/bash
 pocet_autfilt=0
 pocet_ranker=0
 total=0
@@ -8,12 +9,11 @@ passed=0
 for FILE in binary-encoding/*; do
 	total=$((total+1))
 	cat $FILE > poruchany.txt
-	if cat $FILE | autcross 'python3 main.py %H 2 >%O' 'autfilt --complement %H | autfilt --sba >%O' &> ahoj.txt | cat ahoj.txt | grep -q error; then
-		echo "FAIL"
+	cat $FILE | autcross 'python3 main.py %H 2 >%O' 'autfilt --complement %H | autfilt --sba >%O' &> ahoj.txt
+	obsah=$(<ahoj.txt)
+	if [[ $obsah == *"error"* ]]; then
+		echo "FAILED"
 		break
-	else
-		passed=$((passed+1))
-		#echo "PASS"
 	fi
 	#export PATH=$PATH":/home/ondrejalexaj/usr/bin"
 	#echo "-----------------------------------"
