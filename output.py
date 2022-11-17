@@ -16,14 +16,14 @@ def output_BA_format(automaton):
         
     f.close()
 
-def output_HOA_format(automaton,description_file):
+def output_HOA_format(automaton):
     translation = dict()
     number = 0
     for i in automaton.states:
         translation[i] = number
         number+=1
 
-    new_name = description_file[:-4]+"_v2"+".hoa"
+    new_name = "output.hoa"
     f = open(new_name, "w")
     f.write("HOA: v1\n")
     f.write(f"States: {len(automaton.states)}\n")
