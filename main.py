@@ -55,7 +55,7 @@ else:
 complemented = complement(buchiAutomaton,rightmost_2s,merge_states,add_color_3)
 
 #draw_graph(complemented)
-output_HOA_format(complemented,description_file)
+output_HOA_format(complemented)
 
 f = open("output.hoa", "r")
 print(f.read())
