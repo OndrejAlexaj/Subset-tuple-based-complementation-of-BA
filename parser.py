@@ -72,8 +72,7 @@ def parse_body(description,automaton):
         
         if "State:" in line:
             tmp = line[6:]
-            tmp = tmp.split()
-            state = int(tmp[0])
+            state = int((tmp.split())[0])
             if '{' in tmp:
                 automaton.accepting.add(state)
             automaton.states.add(state)

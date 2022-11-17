@@ -22,8 +22,11 @@ if description_file[-4:] == ".hoa":
 elif description_file[-3:] == ".ba":
     format = 1
 else:
-    print("Invalid arguments!\n")
-    exit(1)
+    pass
+    #print("Invalid arguments!\n")
+    #exit(1)
+
+format = 0
 
 rightmost_2s = False
 merge_states = False
@@ -31,10 +34,12 @@ add_color_3 = False
 for i in sys.argv[2:]:
     if i == "0":
         rightmost_2s = True
+        break
     elif i == "1":
         merge_states = True
     elif i == "2":
         add_color_3 = True
+        break
     else:
         print("Invalid arguments!\n")
         exit(1)
@@ -50,4 +55,8 @@ else:
 complemented = complement(buchiAutomaton,rightmost_2s,merge_states,add_color_3)
 
 #draw_graph(complemented)
-#output_HOA_format(complemented,description_file)
+output_HOA_format(complemented,description_file)
+
+f = open("output.hoa", "r")
+print(f.read())
+f.close()
