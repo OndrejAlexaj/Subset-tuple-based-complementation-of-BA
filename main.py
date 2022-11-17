@@ -2,7 +2,7 @@ from hashlib import new
 from venv import create
 from buchi_automaton import *
 from parser import *
-from draw_automaton import *
+#from draw_automaton import *
 from parser import HOA_format
 from union import *
 from emptiness import *
