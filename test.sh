@@ -5,7 +5,7 @@ total=0
 i=0
 
 for FILE in binary-encoding/*; do
-	if cat $FILE | autcross 'python3 main.py %H >%O' 'autfilt --complement %H >%O | autfilt --sba' | grep -q 'error'; then
+	if cat $FILE | autcross 'python3 main.py %H >%O' 'autfilt --complement %H | autfilt --sba >%O' | grep -q 'error'; then
 		echo "FAIL"
 	else
 		echo "PASS"
