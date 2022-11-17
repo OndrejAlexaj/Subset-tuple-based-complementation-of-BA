@@ -13,10 +13,10 @@ for FILE in binary-encoding/*; do
 		break
 	else
 		passed=$((passed+1))
-		echo "PASS"
+		#echo "PASS"
 	fi
 	#export PATH=$PATH":/home/ondrejalexaj/usr/bin"
-	echo "-----------------------------------"
+	#echo "-----------------------------------"
 	#aut=$(autfilt "$FILE" --complement | awk -F: '$1 == "States" {print $2}' | tr -dc '0-9')
 	#ranker=$(../ranker/src/ranker "$FILE" --best | awk -F: '$1 == "States" {print $2}' | tr -dc '0-9')
 done
