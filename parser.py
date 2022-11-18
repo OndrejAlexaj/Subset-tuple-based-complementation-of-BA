@@ -80,7 +80,8 @@ def parse_body(description,automaton):
             tmp = line.split()
             alphabet_member = tmp[0][1:-1]
 
-            automaton.alphabet.add(alphabet_member)
+            automaton.alphabet.add('!0')
+            automaton.alphabet.add('0')
             mark_transition(automaton,[state,alphabet_member,int(tmp[1])])
 
     return automaton

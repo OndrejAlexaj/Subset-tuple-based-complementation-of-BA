@@ -32,7 +32,7 @@ def output_HOA_format(automaton):
     f.write("Acceptance: 1 Inf(0)\n")
     f.write("properties: explicit-labels state-acc trans-labels\n")
 
-    f.write(f"AP: {len(automaton.symbols)}")
+    f.write(f"AP: {len(automaton.symbols)} ")
     for i in automaton.symbols:
         f.write(i+" ")
     f.write("\n")
