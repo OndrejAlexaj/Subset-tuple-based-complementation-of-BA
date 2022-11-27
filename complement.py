@@ -212,7 +212,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         amount = 0
                         for i in colored_tmp:
                             amount += len(i[0])
-                        #index_from_end = len(colored_tmp)
+                        index_from_end = len(colored_tmp)
 
                     has_acc_states = set()
                     succ_tmp = set()
