@@ -234,7 +234,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     #print(index_from_end)
                     was_zero = False
                     changed = False
-                    for i in range(len(colored_tmp) - index_from_end,len(colored_tmp)):
+                    for i in range(index_from_end,len(colored_tmp)):
                         if colored_tmp[i][1]==0:
                             was_zero = True
                         if colored_tmp[i][1]==4 and was_zero:
@@ -242,7 +242,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             changed = True
                             break
                     if not changed:
-                        for i in range(len(colored_tmp) - index_from_end):
+                        for i in range(index_from_end):
                             if colored_tmp[i][1]==0:
                                 was_zero = True
                             if colored_tmp[i][1]==4 and was_zero:
