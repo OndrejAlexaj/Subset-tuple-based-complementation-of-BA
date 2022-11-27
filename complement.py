@@ -203,16 +203,13 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             accepting = False        # 2 colored component
                         colored_tmp.insert(0,non_acc_colored)
                     
-                    if len(colored_tmp)>=0:
-                        colored_tmp = list(merge_4s(colored_tmp))
-                    
-
+        
                     if not is_acc_part and not nonacc_part and curr_state[states_set_pos][1]==2:
                         discontinued_2 = True
                         amount = 0
                         for i in colored_tmp:
                             amount += len(i[0])
-                        index_from_end = len(colored_tmp)
+                        #index_from_end = len(colored_tmp)
 
                     has_acc_states = set()
                     succ_tmp = set()
@@ -220,9 +217,10 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     nonacc_part = False
 
                 #print(colored_tmp)
-                #if len(colored_tmp)!=0:
-                #    colored_tmp = list(merge_state(colored_tmp))
-                #    colored_tmp = list(merge_state(colored_tmp))
+                if len(colored_tmp)!=0:
+                    colored_tmp = list(merge_4s(colored_tmp))
+                    colored_tmp = list(merge_state(colored_tmp))
+                    colored_tmp = list(merge_state(colored_tmp))
                 #print(colored_tmp)
                 #print(curr_state)
                 #print(colored_tmp)
@@ -230,7 +228,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                 breakp = is_breakpoint(colored_tmp)
                 
                 if (discontinued_2 and breakp):
-                    #index_from_end = where_to_start(amount, colored_tmp) 
+                    index_from_end = where_to_start(amount, colored_tmp) 
                     #print(curr_state)
                     #print(colored_tmp)
                     #print(index_from_end)
