@@ -33,11 +33,15 @@ merge_states = False
 add_color_3 = False
 for i in sys.argv[2:]:
     if i == "0":
-        rightmost_2s = True
         break
     elif i == "1":
-        merge_states = True
+        rightmost_2s = True
     elif i == "2":
+        merge_states = True
+    elif i == "3":
+        rightmost_2s = True
+        merge_states = True
+    elif i == "4":
         add_color_3 = True
         break
     else:
