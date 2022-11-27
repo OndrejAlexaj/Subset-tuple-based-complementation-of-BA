@@ -203,8 +203,8 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             accepting = False        # 2 colored component
                         colored_tmp.insert(0,non_acc_colored)
                     
-                    #if len(colored_tmp)>=0:
-                    #    colored_tmp = list(merge_4s(colored_tmp))
+                    if len(colored_tmp)>=0:
+                        colored_tmp = list(merge_4s(colored_tmp))
                     
 
                     if not is_acc_part and not nonacc_part and curr_state[states_set_pos][1]==2:
@@ -212,7 +212,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         amount = 0
                         for i in colored_tmp:
                             amount += len(i[0])
-                        index_from_end = len(colored_tmp)
+                        #index_from_end = len(colored_tmp)
 
                     has_acc_states = set()
                     succ_tmp = set()
@@ -236,7 +236,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     #print(index_from_end)
                     was_zero = False
                     changed = False
-                    for i in range(index_from_end,len(colored_tmp)):
+                    for i in range(len(colored_tmp) - index_from_end,len(colored_tmp)):
                         if colored_tmp[i][1]==0:
                             was_zero = True
                         if colored_tmp[i][1]==4 and was_zero:
@@ -244,7 +244,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             changed = True
                             break
                     if not changed:
-                        for i in range(index_from_end):
+                        for i in range(len(colored_tmp) - index_from_end):
                             if colored_tmp[i][1]==0:
                                 was_zero = True
                             if colored_tmp[i][1]==4 and was_zero:
