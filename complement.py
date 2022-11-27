@@ -175,7 +175,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             acc_colored = (MyFrozenSet(has_acc_states),2)
                         else:
                             if curr_state[states_set_pos][1]==1:
-                                acc_colored = (MyFrozenSet(has_acc_states),1) # to know which 1s were present in the predecessor
+                                acc_colored = (MyFrozenSet(has_acc_states),4) # to know which 1s were present in the predecessor
                             else:
                                 acc_colored = (MyFrozenSet(has_acc_states),curr_state[states_set_pos][1])
 
@@ -195,7 +195,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             non_acc_colored = (MyFrozenSet(succ_tmp),0)
                         else:
                             if curr_state[states_set_pos][1]==1:
-                                non_acc_colored = (MyFrozenSet(succ_tmp),1) # to know which 1s are continued
+                                non_acc_colored = (MyFrozenSet(succ_tmp),4) # to know which 1s are continued
                             else:
                                 non_acc_colored = (MyFrozenSet(succ_tmp),curr_state[states_set_pos][1])
 
@@ -203,8 +203,8 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             accepting = False        # 2 colored component
                         colored_tmp.insert(0,non_acc_colored)
                     
-                    #if len(colored_tmp)>=0:
-                    #    colored_tmp = list(merge_4s(colored_tmp))
+                    if len(colored_tmp)>=0:
+                        colored_tmp = list(merge_4s(colored_tmp))
                     
 
                     if not is_acc_part and not nonacc_part and curr_state[states_set_pos][1]==2:
@@ -220,9 +220,9 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     nonacc_part = False
 
                 #print(colored_tmp)
-                if len(colored_tmp)!=0:
-                    colored_tmp = list(merge_state(colored_tmp))
-                    colored_tmp = list(merge_state(colored_tmp))
+                #if len(colored_tmp)!=0:
+                #    colored_tmp = list(merge_state(colored_tmp))
+                #    colored_tmp = list(merge_state(colored_tmp))
                 #print(colored_tmp)
                 #print(curr_state)
                 #print(colored_tmp)
@@ -239,7 +239,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     for i in range(index_from_end,len(colored_tmp)):
                         if colored_tmp[i][1]==0:
                             was_zero = True
-                        if colored_tmp[i][1]==1 and was_zero:
+                        if colored_tmp[i][1]==4 and was_zero:
                             colored_tmp[i] = (colored_tmp[i][0],3)
                             changed = True
                             break
@@ -247,7 +247,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         for i in range(index_from_end):
                             if colored_tmp[i][1]==0:
                                 was_zero = True
-                            if colored_tmp[i][1]==1 and was_zero:
+                            if colored_tmp[i][1]==4 and was_zero:
                                 colored_tmp[i] = (colored_tmp[i][0],3)
                                 changed = True
                                 break
