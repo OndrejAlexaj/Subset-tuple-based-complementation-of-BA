@@ -212,12 +212,12 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     nonacc_part = False
 
                 #print(colored_tmp)
-                if len(colored_tmp)!=0:
-                    colored_tmp = list(merge_4s(reversed(colored_tmp)))
-                    colored_tmp = list(merge_state(reversed(colored_tmp)))
-                    colored_tmp = list(merge_state(reversed(colored_tmp)))
-                else:
-                    colored_tmp = tuple(reversed(colored_tmp))
+                #if len(colored_tmp)!=0:
+                #    colored_tmp = list(merge_4s(reversed(colored_tmp)))
+                #    colored_tmp = list(merge_state(reversed(colored_tmp)))
+                    #colored_tmp = list(merge_state(reversed(colored_tmp)))
+                #else:
+                colored_tmp = list(reversed(colored_tmp))
                 #print(colored_tmp)
                 #print(curr_state)
                 #print(colored_tmp)
