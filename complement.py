@@ -199,7 +199,6 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         if colored_tmp[0][1]==2: # accepting is only the state that doesn't conaint
                             accepting = False        # 2 colored component
                     
-        
                     if not is_acc_part and not nonacc_part and curr_state[states_set_pos][1]==2:
                         discontinued_2 = True
                         colored_tmp = list(merge_state(colored_tmp))
