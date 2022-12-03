@@ -178,7 +178,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             else:
                                 colored_tmp.insert(0,(MyFrozenSet(has_acc_states),curr_state[states_set_pos][1]))
 
-                        if colored_tmp[-1][1]==2: # accepting is only the state that doesn't conaint
+                        if colored_tmp[0][1]==2: # accepting is only the state that doesn't conaint
                             accepting = False        # 2 colored component
 
                     if len(succ_tmp)!=0:
@@ -196,7 +196,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             else:
                                 colored_tmp.insert(0,(MyFrozenSet(succ_tmp),curr_state[states_set_pos][1]))
 
-                        if colored_tmp[-1][1]==2: # accepting is only the state that doesn't conaint
+                        if colored_tmp[0][1]==2: # accepting is only the state that doesn't conaint
                             accepting = False        # 2 colored component
                     
         
