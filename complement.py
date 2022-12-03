@@ -146,7 +146,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                 discontinued_2 = False
                 was_zero = False
                 index_from_end = 0
-                found = False
+                find_right = False
                 for states_set_pos in reversed(range(len(curr_state))):
                     for state in curr_state[states_set_pos][0]:
                         for succ in automaton.transition[state][symbol]:
@@ -174,7 +174,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             colored_tmp.insert(0,(MyFrozenSet(has_acc_states),2))
                         else:
                             if curr_state[states_set_pos][1]==1:
-                                colored_tmp.insert(0,(MyFrozenSet(has_acc_states),4)) # to know which 1s were present in the predecessor
+                                colored_tmp.insert(0,(MyFrozenSet(has_acc_states),1)) # to know which 1s were present in the predecessor
                             else:
                                 colored_tmp.insert(0,(MyFrozenSet(has_acc_states),curr_state[states_set_pos][1]))
 
@@ -192,112 +192,64 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             colored_tmp.insert(0,(MyFrozenSet(succ_tmp),0))
                         else:
                             if curr_state[states_set_pos][1]==1:
-                                colored_tmp.insert(0,(MyFrozenSet(succ_tmp),4)) # to know which 1s are continued
+                                colored_tmp.insert(0,(MyFrozenSet(succ_tmp),1)) # to know which 1s are continued
                             else:
                                 colored_tmp.insert(0,(MyFrozenSet(succ_tmp),curr_state[states_set_pos][1]))
 
                         if colored_tmp[-1][1]==2: # accepting is only the state that doesn't conaint
                             accepting = False        # 2 colored component
                     
-                    to_be_altered = set()
+        
                     if not is_acc_part and not nonacc_part and curr_state[states_set_pos][1]==2:
                         discontinued_2 = True
-                        was_zero = False
-                        for i in colored_tmp:
-                            if i[1]==0:
-                                was_zero = True
-                            elif was_zero and i[1]==4:
-                                to_be_altered = i[0]
-                                found = True
+                        colored_tmp = list(merge_state(colored_tmp))
+                        colored_tmp = list(merge_state(colored_tmp))
+                        for i in range(len(colored_tmp)):
+                            if colored_tmp[i][1]==0:
+                                find_right = True
+                                colored_tmp[i] = (colored_tmp[i][0],10)
                                 break
-
-                        #amount = 0
-                        #for i in colored_tmp:
-                        #    amount += len(i[0])
-                        #index_from_end = len(colored_tmp)
 
                     has_acc_states = set()
                     succ_tmp = set()
                     is_acc_part = False
                     nonacc_part = False
-                
-                if not found:
-                    for i in colored_tmp:
-                        if i[1]==0:
-                            was_zero = True
-                        elif was_zero and i[1]==4:
-                            to_be_altered = i[0]
-                            found = True
-                            break
 
-                #print(colored_tmp)
                 if len(colored_tmp)!=0:
-                    colored_tmp = list(merge_4s(colored_tmp))
                     colored_tmp = list(merge_state(colored_tmp))
                     colored_tmp = list(merge_state(colored_tmp))
-                #else:
-                #colored_tmp = list(reversed(colored_tmp))
-                #print(colored_tmp)
-                #print(curr_state)
-                #print(colored_tmp)
                 
                 breakp = is_breakpoint(colored_tmp)
                 
                 if (discontinued_2 and breakp):
-                    for i in range(len(colored_tmp)):
-                        if to_be_altered in colored_tmp[i][0]:
-                            colored_tmp[i] = (colored_tmp[0],3)
-                            break
-
-                    #index_from_end = where_to_start(amount, colored_tmp) 
-                    #print(curr_state)
-                    #print(colored_tmp)
-                    #print(index_from_end)
-                    #was_zero = False
-                    #changed = False
-                    #for i in range(index_from_end,len(colored_tmp)):
-                    #    if colored_tmp[i][1]==0:
-                    #        was_zero = True
-                    #    if colored_tmp[i][1]==1 and was_zero:
-                    #        colored_tmp[i] = (colored_tmp[i][0],3)
-                    #        changed = True
-                    #        break
-                    #if not changed:
-                    #    for i in range(index_from_end):
-                    #        if colored_tmp[i][1]==0:
-                    #            was_zero = True
-                    #        if colored_tmp[i][1]==1 and was_zero:
-                    #            colored_tmp[i] = (colored_tmp[i][0],3)
-                    #            changed = True
-                    #            break
-                    #print(colored_tmp)
-                    #print("-----------------------")
+                    was_zero = False
+                    changed = False
+                    if find_right:
+                        for i in range(len(colored_tmp)):
+                            if colored_tmp[i][1]==10:
+                                was_zero = True
+                                colored_tmp[i] = (colored_tmp[i][0],0)
+                            if colored_tmp[i][1]==1 and was_zero:
+                                colored_tmp[i] = (colored_tmp[i][0],3)
+                                changed = True
+                                break
+                    if not find_right or not changed:
+                        for i in range(len(colored_tmp)):
+                            if colored_tmp[i][1]==0:
+                                was_zero = True
+                            if colored_tmp[i][1]==1 and was_zero:
+                                colored_tmp[i] = (colored_tmp[i][0],3)
+                                break
                 elif(not was_2_in_pred and breakp):
                     for i in range(len(colored_tmp)):
-                        if colored_tmp[i][1]==4:
+                        if colored_tmp[i][1]==1:
                             colored_tmp[i] = (colored_tmp[i][0],3)
                             break
-                
-                #print(colored_tmp)
-                #print("---------------------------")
-            
-                for i in range(len(colored_tmp)):
-                    if colored_tmp[i][1]==4:
-                        colored_tmp[i] = (colored_tmp[i][0],1)
-                    
-                if len(colored_tmp)!=0:
-                    colored_tmp = list(merge_state(colored_tmp))
-                    colored_tmp = list(merge_state(colored_tmp))
-                
-                #print(colored_tmp)
-                #print("---------------------------------")
 
                 if len(tmp_states)!=0 and upper:
                     interim_automaton.states.add(tuple(reversed(tmp_states)))
                     mark_transition(interim_automaton,[curr_state,symbol,tuple(reversed(tmp_states))])
                     new_states.add(tuple(reversed(tmp_states)))
-                
-                #print(colored_tmp)
 
                 # "colored_tmp[-1][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
                 # component in state has color 2, then it doesn't need to be stored (can be altered by argument --> rightmost_2s)
