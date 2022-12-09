@@ -245,7 +245,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                                 break
                 elif(not was_2_in_pred and breakp):
                     for i in range(len(colored_tmp)):
-                        if colored_tmp[i][1]==1 or colored_tmp[i][1]==4:
+                        if colored_tmp[i][1]==4:
                             colored_tmp[i] = (colored_tmp[i][0],3)
                             break
 
@@ -367,13 +367,16 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                 
                 # "colored_tmp[0][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
                 # component in state has color 2, then it doesn't need to be stored (can be altered by argument --> rightmost_2s)
-                if len(colored_tmp)!=0 and (colored_tmp[0][1]!=2 or not rightmost_2s):
+                if len(colored_tmp)!=0 and (colored_tmp[-1][1]!=2 or not rightmost_2s):
                     if merge_states:
                         colored_tmp = merge_state(tuple(colored_tmp))
                         colored_tmp = merge_state(tuple(colored_tmp))
                         colored_tmp = merge_state(tuple(colored_tmp))
                     else:
                         colored_tmp = tuple(colored_tmp)
+                    print(curr_state)
+                    print(colored_tmp)
+                    print("---------------------")
                     interim_automaton.states.add(colored_tmp)
                     mark_transition(interim_automaton,[curr_state,symbol,colored_tmp])
                     new_colored.add(colored_tmp)
