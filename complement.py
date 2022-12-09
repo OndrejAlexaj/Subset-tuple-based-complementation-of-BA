@@ -374,9 +374,6 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                         colored_tmp = merge_state(tuple(colored_tmp))
                     else:
                         colored_tmp = tuple(colored_tmp)
-                    print(curr_state)
-                    print(colored_tmp)
-                    print("---------------------")
                     interim_automaton.states.add(colored_tmp)
                     mark_transition(interim_automaton,[curr_state,symbol,colored_tmp])
                     new_colored.add(colored_tmp)
