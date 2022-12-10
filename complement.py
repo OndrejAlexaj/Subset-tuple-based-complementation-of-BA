@@ -302,6 +302,10 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
     accepting = True
     processed = set()
 
+    waiting_states = set()
+    waiting_states.add(interim_automaton.initial)
+    waiting_trans = dict()
+
     while(1):
         breakpoint = is_breakpoint(curr_state)
         if(curr_state not in processed):    
@@ -356,6 +360,7 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
 
                         if colored_tmp[0][1]==2:
                             accepting = False
+                    
 
                     has_acc_states = set()
                     succ_tmp = set()
@@ -364,21 +369,47 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                     interim_automaton.states.add(tuple(tmp_states))
                     mark_transition(interim_automaton,[curr_state,symbol,tuple(tmp_states)])
                     new_states.add(tuple(tmp_states))
-                
+
+
+                    waiting_states.add(tuple(tmp_states))
+                    if(waiting_trans.get(curr_state) is not None):
+                        if (waiting_trans[curr_state]).get(symbol) is not None:
+                            (waiting_trans[curr_state][symbol]).add(tuple(tmp_states))
+                        else:
+                            waiting_trans[curr_state][symbol] = {tuple(tmp_states)}
+                    else:
+                        waiting_trans[curr_state] = {symbol:{tuple(tmp_states)}}
+
                 # "colored_tmp[0][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
                 # component in state has color 2, then it doesn't need to be stored (can be altered by argument --> rightmost_2s)
                 if len(colored_tmp)!=0 and (colored_tmp[-1][1]!=2 or not rightmost_2s):
-                    if merge_states:
-                        colored_tmp = merge_state(tuple(colored_tmp))
-                        colored_tmp = merge_state(tuple(colored_tmp))
-                        colored_tmp = merge_state(tuple(colored_tmp))
+                    if curr_state[-1][1]==-1:
+                        if state_in_scc(waiting_states, waiting_trans, symbol, tuple(curr_state)):
+                            if merge_states:
+                                colored_tmp = merge_state(tuple(colored_tmp))
+                                colored_tmp = merge_state(tuple(colored_tmp))
+                                colored_tmp = merge_state(tuple(colored_tmp))
+                            else:
+                                colored_tmp = tuple(colored_tmp)
+                            interim_automaton.states.add(colored_tmp)
+                            mark_transition(interim_automaton,[curr_state,symbol,colored_tmp])
+                            new_colored.add(colored_tmp)
+
+                            if accepting:
+                                interim_automaton.accepting.add(colored_tmp)
                     else:
-                        colored_tmp = tuple(colored_tmp)
-                    interim_automaton.states.add(colored_tmp)
-                    mark_transition(interim_automaton,[curr_state,symbol,colored_tmp])
-                    new_colored.add(colored_tmp)
-                    if accepting:
-                        interim_automaton.accepting.add(colored_tmp)
+                        if merge_states:
+                            colored_tmp = merge_state(tuple(colored_tmp))
+                            colored_tmp = merge_state(tuple(colored_tmp))
+                            colored_tmp = merge_state(tuple(colored_tmp))
+                        else:
+                            colored_tmp = tuple(colored_tmp)
+                        interim_automaton.states.add(colored_tmp)
+                        mark_transition(interim_automaton,[curr_state,symbol,colored_tmp])
+                        new_colored.add(colored_tmp)
+
+                        if accepting:
+                            interim_automaton.accepting.add(colored_tmp)
 
                 tmp_states = []
                 colored_tmp = []
@@ -395,8 +426,79 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
             curr_state = new_colored.pop()  
         else:
             curr_state = new_states.pop()
-
     return interim_automaton
+
+# source:
+# https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
+# section - The algorithm in pseudocode
+def state_in_scc(states, trans, symbol, state_to_check):
+    end_algo = False
+    index = 0
+    sccs, stack, all_sccs = [], [], []
+    indices, lowlinks, on_stack = dict(), dict(), dict()
+
+    for v in states:
+        indices[v] = -1
+        on_stack[v] = False
+    
+    def in_strongconnect(v):
+        nonlocal index, end_algo
+        stack = []
+        indices[v] = index
+        lowlinks[v] = index
+        index += 1
+        stack.append(v)
+        on_stack[v] = True
+
+        if trans.get(v) is not None: # to catch if the automaton is not complete
+            for succ in trans[v][symbol]: # it is guaranteed that this cycle is performed
+                if indices[succ] == -1:
+                    if in_strongconnect(succ):
+                        return True
+                    lowlinks[v] = min(lowlinks[v],lowlinks[succ])
+                elif on_stack[succ]:
+                    lowlinks[v] = min(lowlinks[v],indices[succ])
+
+            if lowlinks[v] == indices[v]:
+                scc = set()
+                while True:
+                    w = stack.pop(0)
+                    scc.add(w)
+                    on_stack[w] = False
+                    if(w == v):
+                        break
+
+                if not is_trivial(trans, scc, symbol) and (state_to_check in scc):
+                    return True
+                else:
+                    return False
+            return False
+
+    # in pseudocode this part is above the strongconnect(),
+    # but to make it run it needs to be after definition
+    for state in states:
+        if indices[state] == -1:
+            if in_strongconnect(state):
+                return True 
+
+    return False
+
+# returns True if the SCC is trivial, False otherwise
+def is_trivial(trans, component, symbol):
+    # component which contains only 1 state Q is non-trivial
+    # iff there exists edge from Q to Q
+    if len(component) == 1:
+        for state_1 in component:
+            if trans.get(state_1) is None: # if automaton is not complete
+                return False
+            for state_2 in trans[state_1][symbol]:
+                if state_1==state_2:
+                    return False
+    else:
+        return False
+
+    return True
+
 
 # Returns complement of the given automaton.
 # State name consists of tuple of sets for
