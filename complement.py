@@ -370,7 +370,6 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                     mark_transition(interim_automaton,[curr_state,symbol,tuple(tmp_states)])
                     new_states.add(tuple(tmp_states))
 
-
                     waiting_states.add(tuple(tmp_states))
                     if(waiting_trans.get(curr_state) is not None):
                         if (waiting_trans[curr_state]).get(symbol) is not None:
@@ -449,14 +448,13 @@ def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
         on_stack[v] = True
 
         if trans.get(v) is not None: # to catch if the automaton is not complete
-            for succs in trans[v].values(): # it is guaranteed that this cycle is performed
-                for w in succs:
-                    if indices[w] == -1:
-                        if in_strongconnect(w):
-                            return True
-                        lowlinks[v] = min(lowlinks[v],lowlinks[w])
-                    elif on_stack[w]:
-                        lowlinks[v] = min(lowlinks[v],indices[w])
+            for succ in trans[v][symbol]: # it is guaranteed that this cycle is performed
+                if indices[succ] == -1:
+                    if in_strongconnect(succ):
+                        return True
+                    lowlinks[v] = min(lowlinks[v],lowlinks[succ])
+                elif on_stack[succ]:
+                    lowlinks[v] = min(lowlinks[v],indices[succ])
 
             if lowlinks[v] == indices[v]:
                 scc = set()
