@@ -384,7 +384,7 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                 # component in state has color 2, then it doesn't need to be stored (can be altered by argument --> rightmost_2s)
                 if len(colored_tmp)!=0 and (colored_tmp[-1][1]!=2 or not rightmost_2s):
                     if curr_state[-1][1]==-1:
-                        if state_in_scc(waiting_states, waiting_trans, symbol, tuple(curr_state)):
+                        if state_in_scc(waiting_states, waiting_trans, symbol, tuple(curr_state), tuple(tmp_states)):
                             if merge_states:
                                 colored_tmp = merge_state(tuple(colored_tmp))
                                 colored_tmp = merge_state(tuple(colored_tmp))
@@ -431,8 +431,7 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
 # source:
 # https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
 # section - The algorithm in pseudocode
-def state_in_scc(states, trans, symbol, state_to_check):
-    end_algo = False
+def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
     index = 0
     sccs, stack, all_sccs = [], [], []
     indices, lowlinks, on_stack = dict(), dict(), dict()
@@ -442,8 +441,7 @@ def state_in_scc(states, trans, symbol, state_to_check):
         on_stack[v] = False
     
     def in_strongconnect(v):
-        nonlocal index, end_algo
-        stack = []
+        nonlocal index
         indices[v] = index
         lowlinks[v] = index
         index += 1
@@ -451,24 +449,25 @@ def state_in_scc(states, trans, symbol, state_to_check):
         on_stack[v] = True
 
         if trans.get(v) is not None: # to catch if the automaton is not complete
-            for succ in trans[v][symbol]: # it is guaranteed that this cycle is performed
-                if indices[succ] == -1:
-                    if in_strongconnect(succ):
-                        return True
-                    lowlinks[v] = min(lowlinks[v],lowlinks[succ])
-                elif on_stack[succ]:
-                    lowlinks[v] = min(lowlinks[v],indices[succ])
+            for succs in trans[v].values(): # it is guaranteed that this cycle is performed
+                for w in succs:
+                    if indices[w] == -1:
+                        if in_strongconnect(w):
+                            return True
+                        lowlinks[v] = min(lowlinks[v],lowlinks[w])
+                    elif on_stack[w]:
+                        lowlinks[v] = min(lowlinks[v],indices[w])
 
             if lowlinks[v] == indices[v]:
                 scc = set()
                 while True:
-                    w = stack.pop(0)
+                    w = stack.pop()
                     scc.add(w)
                     on_stack[w] = False
                     if(w == v):
                         break
 
-                if not is_trivial(trans, scc, symbol) and (state_to_check in scc):
+                if not is_trivial(trans, scc, symbol) and (state_to_check1 in scc) and (state_to_check2 in scc):
                     return True
                 else:
                     return False
@@ -477,6 +476,7 @@ def state_in_scc(states, trans, symbol, state_to_check):
     # in pseudocode this part is above the strongconnect(),
     # but to make it run it needs to be after definition
     for state in states:
+        stack = []
         if indices[state] == -1:
             if in_strongconnect(state):
                 return True 
@@ -491,9 +491,10 @@ def is_trivial(trans, component, symbol):
         for state_1 in component:
             if trans.get(state_1) is None: # if automaton is not complete
                 return False
-            for state_2 in trans[state_1][symbol]:
-                if state_1==state_2:
-                    return False
+            for set_of_succ in trans[state_1].values():
+                for state_2 in set_of_succ:
+                    if state_1==state_2:
+                        return False
     else:
         return False
 
