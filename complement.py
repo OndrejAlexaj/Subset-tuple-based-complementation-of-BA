@@ -474,11 +474,15 @@ def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
 
     # in pseudocode this part is above the strongconnect(),
     # but to make it run it needs to be after definition
-    for state in states:
-        stack = []
-        if indices[state] == -1:
-            if in_strongconnect(state):
-                return True 
+    #for state in states:
+    #    stack = []
+    #    if indices[state] == -1:
+    #        if in_strongconnect(state):
+    #            return True 
+
+    if indices[state_to_check1] == -1:
+        if in_strongconnect(state_to_check1):
+            return True 
 
     return False
 
