@@ -448,28 +448,29 @@ def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
         on_stack[v] = True
 
         if trans.get(v) is not None: # to catch if the automaton is not complete
-            for succ in trans[v][symbol]: # it is guaranteed that this cycle is performed
-                if indices[succ] == -1:
-                    if in_strongconnect(succ):
-                        return True
-                    lowlinks[v] = min(lowlinks[v],lowlinks[succ])
-                elif on_stack[succ]:
-                    lowlinks[v] = min(lowlinks[v],indices[succ])
+            for tmp in trans[v].values():
+                for succ in tmp: # it is guaranteed that this cycle is performed
+                    if indices[succ] == -1:
+                        if in_strongconnect(succ):
+                            return True
+                        lowlinks[v] = min(lowlinks[v],lowlinks[succ])
+                    elif on_stack[succ]:
+                        lowlinks[v] = min(lowlinks[v],indices[succ])
 
-            if lowlinks[v] == indices[v]:
-                scc = set()
-                while True:
-                    w = stack.pop()
-                    scc.add(w)
-                    on_stack[w] = False
-                    if(w == v):
-                        break
+        if lowlinks[v] == indices[v]:
+            scc = set()
+            while True:
+                w = stack.pop()
+                scc.add(w)
+                on_stack[w] = False
+                if(w == v):
+                    break
 
-                if not is_trivial(trans, scc, symbol) and (state_to_check1 in scc) and (state_to_check2 in scc):
-                    return True
-                else:
-                    return False
-            return False
+            if not is_trivial(trans, scc, symbol) and (state_to_check1 in scc) and (state_to_check2 in scc):
+                return True
+            else:
+                return False
+        return False
 
     # in pseudocode this part is above the strongconnect(),
     # but to make it run it needs to be after definition
