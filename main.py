@@ -2,7 +2,7 @@ from hashlib import new
 from venv import create
 from buchi_automaton import *
 from parser import *
-#from draw_automaton import *
+from draw_automaton import *
 from parser import HOA_format
 from union import *
 from emptiness import *
@@ -10,6 +10,9 @@ from intersection import *
 from output import *
 from edit_BA import *
 from complement import *
+
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE,SIG_DFL)
 
 import sys
 
@@ -31,6 +34,7 @@ format = 0
 rightmost_2s = False
 merge_states = False
 add_color_3 = False
+delay = False
 for i in sys.argv[2:]:
     if i == "0":
         break
@@ -44,6 +48,10 @@ for i in sys.argv[2:]:
     elif i == "4":
         add_color_3 = True
         break
+    elif i == "5":
+        rightmost_2s = True
+        merge_states = True
+        delay = True
     else:
         print("Invalid arguments!\n")
         exit(1)
@@ -56,9 +64,9 @@ if format == 0:
 else:
     buchiAutomaton = BA_format(description_file)
 
-complemented = complement(buchiAutomaton,rightmost_2s,merge_states,add_color_3)
+complemented = complement(buchiAutomaton,rightmost_2s,merge_states,add_color_3,delay)
 
-#draw_graph(complemented)
+#draw_graph(complemented, "")
 output_HOA_format(complemented)
 
 f = open("output.hoa", "r")
