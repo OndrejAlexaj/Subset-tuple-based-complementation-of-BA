@@ -295,7 +295,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
 #############################
 
 # parameter "upper" indicates wheter we also build upper automaton or not
-def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_states):
+def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_states,delay):
     succ_tmp, has_acc_states, new_states, new_colored = set(), set(), set(), set()
     tmp_states, colored_tmp = [], []
     visited = init_visited(automaton) # to preserve disjointness of sets in one state
@@ -382,7 +382,7 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                 # "colored_tmp[0][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
                 # component in state has color 2, then it doesn't need to be stored (can be altered by argument --> rightmost_2s)
                 if len(colored_tmp)!=0 and (colored_tmp[-1][1]!=2 or not rightmost_2s):
-                    if curr_state[-1][1]==-1:
+                    if curr_state[-1][1]==-1 and delay:
                         if state_in_scc(waiting_states, waiting_trans, symbol, tuple(curr_state), tuple(tmp_states)):
                             if merge_states:
                                 colored_tmp = merge_state(tuple(colored_tmp))
@@ -435,12 +435,17 @@ def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
     sccs, stack, all_sccs = [], [], []
     indices, lowlinks, on_stack = dict(), dict(), dict()
 
+    params_stack = []
+
     for v in states:
         indices[v] = -1
         on_stack[v] = False
     
+    #params_stack.append(state_to_check1)
     def in_strongconnect(v):
         nonlocal index
+    #while len(params_stack)>0:
+        #v = params_stack.pop()
         indices[v] = index
         lowlinks[v] = index
         index += 1
@@ -451,6 +456,8 @@ def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
             for tmp in trans[v].values():
                 for succ in tmp: # it is guaranteed that this cycle is performed
                     if indices[succ] == -1:
+                        #params_stack.append(succ)
+                        #continue
                         if in_strongconnect(succ):
                             return True
                         lowlinks[v] = min(lowlinks[v],lowlinks[succ])
@@ -474,15 +481,11 @@ def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
 
     # in pseudocode this part is above the strongconnect(),
     # but to make it run it needs to be after definition
-    #for state in states:
-    #    stack = []
-    #    if indices[state] == -1:
-    #        if in_strongconnect(state):
-    #            return True 
-
-    if indices[state_to_check1] == -1:
-        if in_strongconnect(state_to_check1):
-            return True 
+    for state in states:
+        stack = []
+        if indices[state] == -1:
+            if in_strongconnect(state):
+                return True 
 
     return False
 
@@ -507,7 +510,7 @@ def is_trivial(trans, component, symbol):
 # Returns complement of the given automaton.
 # State name consists of tuple of sets for
 # better understanding of output.
-def complement(automaton,rightmost_2s,merge_states,add_color_3):
+def complement(automaton,rightmost_2s,merge_states,add_color_3,delay):
     upper_part = BuchiAutomaton(set(),set(),dict(),"",set(),automaton.symbols)
     upper_part.alphabet = automaton.alphabet
     upper_part.initial = ((MyFrozenSet({automaton.initial}),-1),)
@@ -517,6 +520,6 @@ def complement(automaton,rightmost_2s,merge_states,add_color_3):
     if add_color_3:
         complemented = color_3(automaton,upper_part,upper_part.initial,True)
     else:
-        complemented = determinise(automaton,upper_part,upper_part.initial,True,rightmost_2s,merge_states)
+        complemented = determinise(automaton,upper_part,upper_part.initial,True,rightmost_2s,merge_states,delay)
 
     return complemented
