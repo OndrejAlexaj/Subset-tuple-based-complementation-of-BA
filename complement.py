@@ -99,6 +99,10 @@ def merge_state(state):
         if(len(new_set) != 0):
             res_state.append((MyFrozenSet(new_set),2))
             new_set = set()
+        
+        res_state = []
+        new_set = set()
+        was_color_2 = False
     
     return tuple(res_state)
 
