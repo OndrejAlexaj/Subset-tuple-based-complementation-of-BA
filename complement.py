@@ -77,24 +77,28 @@ def merge_state(state):
     res_state = []
     new_set = set()
     was_color_2 = False
+    finish = False
 
-    for set_and_coloring in new_state:
-        if set_and_coloring[1] == 2:
-            if len(new_set) != 0:
-                res_state.append((MyFrozenSet(new_set),2))
-            was_color_2 = True
-            new_set = set_and_coloring[0]
-        elif set_and_coloring[1] == 1 and was_color_2:
-            new_set = new_set.union(new_set,set_and_coloring[0])
-        else:
-            if len(new_set) != 0:
-                res_state.append((MyFrozenSet(new_set),2))
-                new_set = set()
-            was_color_2 = False
-            res_state.append(set_and_coloring)
-    if(len(new_set) != 0):
-        res_state.append((MyFrozenSet(new_set),2))
-        new_set = set()
+    while not finish:
+        finish = True
+        for set_and_coloring in new_state:
+            if set_and_coloring[1] == 2:
+                if len(new_set) != 0:
+                    res_state.append((MyFrozenSet(new_set),2))
+                was_color_2 = True
+                new_set = set_and_coloring[0]
+            elif set_and_coloring[1] == 1 and was_color_2:
+                new_set = new_set.union(new_set,set_and_coloring[0])
+                finish = False
+            else:
+                if len(new_set) != 0:
+                    res_state.append((MyFrozenSet(new_set),2))
+                    new_set = set()
+                was_color_2 = False
+                res_state.append(set_and_coloring)
+        if(len(new_set) != 0):
+            res_state.append((MyFrozenSet(new_set),2))
+            new_set = set()
     
     return tuple(res_state)
 
@@ -214,7 +218,6 @@ def color_3(automaton,interim_automaton,curr_state,upper):
 
                 if len(colored_tmp)!=0:
                     colored_tmp = list(merge_4s(colored_tmp))
-                    colored_tmp = list(merge_state(colored_tmp))
                     colored_tmp = list(merge_state(colored_tmp))
                 
                 breakp = is_breakpoint(colored_tmp)
@@ -384,9 +387,16 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                 if len(colored_tmp)!=0 and (colored_tmp[-1][1]!=2 or not rightmost_2s):
                     if curr_state[-1][1]==-1 and delay:
                         if state_in_scc(waiting_states, waiting_trans, symbol, tuple(curr_state), tuple(tmp_states)):
+                        #visited = dict()
+                        #rec_stack = dict()
+                        #for state in waiting_states:
+                        #    visited[state] = False
+                        #    rec_stack[state] = False
+                        #visited[curr_state] = True
+                        #rec_stack[curr_state] = True
+#
+                        #if closes_cycle(waiting_states,waiting_trans,tuple(tmp_states),visited,rec_stack,tuple(curr_state)):
                             if merge_states:
-                                colored_tmp = merge_state(tuple(colored_tmp))
-                                colored_tmp = merge_state(tuple(colored_tmp))
                                 colored_tmp = merge_state(tuple(colored_tmp))
                             else:
                                 colored_tmp = tuple(colored_tmp)
@@ -398,8 +408,6 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
                                 interim_automaton.accepting.add(colored_tmp)
                     else:
                         if merge_states:
-                            colored_tmp = merge_state(tuple(colored_tmp))
-                            colored_tmp = merge_state(tuple(colored_tmp))
                             colored_tmp = merge_state(tuple(colored_tmp))
                         else:
                             colored_tmp = tuple(colored_tmp)
@@ -481,11 +489,11 @@ def state_in_scc(states, trans, symbol, state_to_check1, state_to_check2):
 
     # in pseudocode this part is above the strongconnect(),
     # but to make it run it needs to be after definition
-    for state in states:
-        stack = []
-        if indices[state] == -1:
-            if in_strongconnect(state):
-                return True 
+    #for state in states:
+    #    stack = []
+    if indices[state_to_check1] == -1:
+        if in_strongconnect(state_to_check1):
+            return True 
 
     return False
 
@@ -506,7 +514,20 @@ def is_trivial(trans, component, symbol):
 
     return True
 
+def closes_cycle(states,trans,state_to_check,visited,rec_stack,end_state):
+    visited[state_to_check] = True
+    rec_stack[state_to_check] = True
 
+    if trans.get(state_to_check) is not None: # to catch if the automaton is not complete
+        for tmp in trans[state_to_check].values():
+            for succ in tmp: # it is guaranteed that this cycle is performed
+                if succ != end_state and not visited[succ]:
+                    if closes_cycle(states,trans,succ,visited,rec_stack,end_state):
+                        return True
+                elif succ == end_state:
+                    return True
+
+    return False
 # Returns complement of the given automaton.
 # State name consists of tuple of sets for
 # better understanding of output.
