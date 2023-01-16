@@ -154,7 +154,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
             for symbol in interim_automaton.alphabet:
                 discontinued_2 = False
                 was_zero = False
-                find_right = False
+                found_right = False
                 for states_set_pos in reversed(range(len(curr_state))):
                     for state in curr_state[states_set_pos][0]:
                         for succ in automaton.transition[state][symbol]:
@@ -182,7 +182,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             colored_tmp.insert(0,(MyFrozenSet(has_acc_states),2))
                         else:
                             if curr_state[states_set_pos][1]==1:
-                                colored_tmp.insert(0,(MyFrozenSet(has_acc_states),4)) # to know which 1s were present in the predecessor
+                                colored_tmp.insert(0,(MyFrozenSet(has_acc_states),1)) # to know which 1s were present in the predecessor
                             else:
                                 colored_tmp.insert(0,(MyFrozenSet(has_acc_states),curr_state[states_set_pos][1]))
 
@@ -200,7 +200,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                             colored_tmp.insert(0,(MyFrozenSet(succ_tmp),0))
                         else:
                             if curr_state[states_set_pos][1]==1:
-                                colored_tmp.insert(0,(MyFrozenSet(succ_tmp),4)) # to know which 1s are continued
+                                colored_tmp.insert(0,(MyFrozenSet(succ_tmp),1)) # to know which 1s are continued
                             else:
                                 colored_tmp.insert(0,(MyFrozenSet(succ_tmp),curr_state[states_set_pos][1]))
 
@@ -212,7 +212,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         discontinued_2 = True
                         for i in range(len(colored_tmp)):
                             if colored_tmp[i][1]==0:
-                                find_right = True
+                                found_right = True
                                 colored_tmp[i] = (colored_tmp[i][0],10)
                                 break
 
@@ -222,47 +222,53 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     nonacc_part = False
 
                 if len(colored_tmp)!=0:
-                    colored_tmp = list(merge_4s(colored_tmp))
+                    #colored_tmp = list(merge_4s(colored_tmp))
                     colored_tmp = list(merge_state(colored_tmp))
                 
                 breakp = is_breakpoint(colored_tmp)
+
+                #print(curr_state)
+                #print(colored_tmp)
                 
                 if (discontinued_2 and breakp):
                     was_zero = False
                     changed = False
-                    if find_right:
+                    if found_right:
                         for i in range(len(colored_tmp)):
                             if colored_tmp[i][1]==10:
                                 was_zero = True
                                 colored_tmp[i] = (colored_tmp[i][0],0)
-                            if colored_tmp[i][1]==4 and was_zero:
+                            if colored_tmp[i][1]==1 and was_zero:
                                 colored_tmp[i] = (colored_tmp[i][0],3)
                                 changed = True
                                 break
-                    if not find_right or not changed:
+                    if not changed:
                         for i in range(len(colored_tmp)):
                             if colored_tmp[i][1]==0:
                                 was_zero = True
-                            if colored_tmp[i][1]==4 and was_zero:
+                            if colored_tmp[i][1]==1 and was_zero:
                                 colored_tmp[i] = (colored_tmp[i][0],3)
                                 break
-                    if not was_zero:
-                        for i in range(len(colored_tmp)):
-                            if colored_tmp[i][1]==4:
-                                colored_tmp[i] = (colored_tmp[i][0],3)
-                                break
+                    #if not was_zero:
+                    #    for i in range(len(colored_tmp)):
+                    #        if colored_tmp[i][1]==4:
+                    #            colored_tmp[i] = (colored_tmp[i][0],3)
+                    #            break
                 elif(not was_2_in_pred and breakp):
                     for i in range(len(colored_tmp)):
-                        if colored_tmp[i][1]==4:
+                        if colored_tmp[i][1]==1:
                             colored_tmp[i] = (colored_tmp[i][0],3)
                             break
 
-                for i in range(len(colored_tmp)):
-                    if colored_tmp[i][1]==4:
-                        colored_tmp[i] = (colored_tmp[i][0],1)
+                #for i in range(len(colored_tmp)):
+                #    if colored_tmp[i][1]==4:
+                #        colored_tmp[i] = (colored_tmp[i][0],1)
                 
                 if len(colored_tmp)!=0:
                     colored_tmp = list(merge_state(colored_tmp))
+                
+                #print(colored_tmp)
+                #print("--------------------------------")
 
                 if len(tmp_states)!=0 and upper:
                     interim_automaton.states.add(tuple(tmp_states))
