@@ -100,11 +100,12 @@ def merge_state(state):
             res_state.append((MyFrozenSet(new_set),2))
             new_set = set()
         
+        new_state = res_state
         res_state = []
         new_set = set()
         was_color_2 = False
     
-    return tuple(res_state)
+    return tuple(new_state)
 
 def mikrostates_in_makro(state):
     acc = 0
@@ -261,7 +262,6 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         colored_tmp[i] = (colored_tmp[i][0],1)
                 
                 if len(colored_tmp)!=0:
-                    colored_tmp = list(merge_state(colored_tmp))
                     colored_tmp = list(merge_state(colored_tmp))
 
                 if len(tmp_states)!=0 and upper:
