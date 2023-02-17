@@ -219,8 +219,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         if colored_tmp[0][1]==2: # accepting is only the state that doesn't conaint
                             accepting = False        # 2 colored component
                     
-        
-                    if not is_acc_part and not nonacc_part and curr_state[states_set_pos][1]==2:
+                    if not is_acc_part and not nonacc_part and (curr_state[states_set_pos][1]==2 or curr_state[states_set_pos][1]==3):
                         discontinued_2 = True
                         for i in range(len(colored_tmp)):
                             if colored_tmp[i][1]==0:
@@ -240,7 +239,6 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                 next_color = 3
                 if from_upper:
                     next_color = 2
-                    accepting = False
 
                 if (discontinued_2 and breakp):
                     was_zero = False
@@ -252,6 +250,8 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                                 colored_tmp[i] = (colored_tmp[i][0],0)
                             if colored_tmp[i][1]==1 and was_zero:
                                 colored_tmp[i] = (colored_tmp[i][0],next_color)
+                                if next_color == 2:
+                                    accepting = False
                                 changed = True
                                 break
                     if not changed:
@@ -260,16 +260,22 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                                 was_zero = True
                             if colored_tmp[i][1]==1 and was_zero:
                                 colored_tmp[i] = (colored_tmp[i][0],next_color)
+                                if next_color == 2:
+                                    accepting = False
                                 break
                     if not was_zero:
                         for i in range(len(colored_tmp)):
                             if colored_tmp[i][1]==1:
                                 colored_tmp[i] = (colored_tmp[i][0],next_color)
+                                if next_color == 2:
+                                    accepting = False
                                 break
                 elif(not was_2_in_pred and breakp):
                     for i in range(len(colored_tmp)):
                         if colored_tmp[i][1]==1:
                             colored_tmp[i] = (colored_tmp[i][0],next_color)
+                            if next_color == 2:
+                                    accepting = False
                             break
 
                #for i in range(len(colored_tmp)):
