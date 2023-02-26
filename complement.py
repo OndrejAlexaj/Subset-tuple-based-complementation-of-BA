@@ -132,17 +132,16 @@ def where_to_start(amount_to_right,state):
 
     return 0
 
-def contains_multiple(state):
-    count = 0
+def contains_zero(state):
     for i in state:
-        if i[1]==3 or i[1]==2:
-            count+=1
+        if i[1]==0:
+            return True
     
-    return count>=2
+    return False
 
 
 # adds color 3 so each state contains at most one color 3 xor 2
-def color_3(automaton,interim_automaton,curr_state,upper):
+def color_3(automaton,interim_automaton,curr_state,upper,acc_type):
     succ_tmp, has_acc_states, new_states, new_colored = set(), set(), set(), set()
     tmp_states, colored_tmp = [], []
     visited = init_visited(automaton) # to preserve disjointness of sets in one state
@@ -166,14 +165,24 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                         for succ in automaton.transition[state][symbol]:
                             # here we distinguish (and store differently) accepting
                             # and non-accepting states
-                            if succ in automaton.accepting:
-                                if not visited[succ]:
-                                    has_acc_states.add(succ)
-                                    visited[succ] = True
-                            else:
-                                if not visited[succ]:
-                                    succ_tmp.add(succ)
-                                    visited[succ] = True
+                            if acc_type == "state":
+                                if succ in automaton.accepting:
+                                    if not visited[succ]:
+                                        has_acc_states.add(succ)
+                                        visited[succ] = True
+                                else:
+                                    if not visited[succ]:
+                                        succ_tmp.add(succ)
+                                        visited[succ] = True
+                            elif acc_type == "trans":
+                                if (state,symbol,succ) in automaton.accepting:
+                                    if not visited[succ]:
+                                        has_acc_states.add(succ)
+                                        visited[succ] = True
+                                else:
+                                    if not visited[succ]:
+                                        succ_tmp.add(succ)
+                                        visited[succ] = True
 
                     # "tmp_states" stores what state we have build so far.
 
@@ -297,7 +306,10 @@ def color_3(automaton,interim_automaton,curr_state,upper):
                     mark_transition(interim_automaton,[curr_state,symbol,tuple(colored_tmp)])
                     new_colored.add(tuple(colored_tmp))
                     if accepting:
-                        interim_automaton.accepting.add(tuple(colored_tmp))
+                        if acc_type == "state":
+                            interim_automaton.accepting.add(tuple(colored_tmp))
+                        elif acc_type == "trans":
+                            interim_automaton.accepting.add((curr_state, symbol, tuple(colored_tmp)))
 
                 tmp_states = []
                 colored_tmp = []
@@ -315,7 +327,7 @@ def color_3(automaton,interim_automaton,curr_state,upper):
             curr_state = new_colored.pop()  
         else:
             curr_state = new_states.pop()
-    
+
     return interim_automaton
 
 #############################
@@ -409,7 +421,7 @@ def determinise(automaton,interim_automaton,curr_state,upper,rightmost_2s,merge_
 
                 # "colored_tmp[0][1]!=2" is there because if the rightmost(here it is leftmost, but it will be reversed eventually) 
                 # component in state has color 2, then it doesn't need to be stored (can be altered by argument --> rightmost_2s)
-                if len(colored_tmp)!=0 and (colored_tmp[-1][1]!=2 or not rightmost_2s):
+                if len(colored_tmp)!=0 and (colored_tmp[-1][1]!=2 or not rightmost_2s) and (contains_zero(colored_tmp)):
                     if curr_state[-1][1]==-1 and delay:
                         if state_in_scc(waiting_states, waiting_trans, symbol, tuple(curr_state), tuple(tmp_states)):
                         #visited = dict()
@@ -556,7 +568,7 @@ def closes_cycle(states,trans,state_to_check,visited,rec_stack,end_state):
 # Returns complement of the given automaton.
 # State name consists of tuple of sets for
 # better understanding of output.
-def complement(automaton,rightmost_2s,merge_states,add_color_3,delay):
+def complement(automaton,rightmost_2s,merge_states,add_color_3,delay,acc_type):
     upper_part = BuchiAutomaton(set(),set(),dict(),"",set(),automaton.symbols)
     upper_part.alphabet = automaton.alphabet
     upper_part.initial = ((MyFrozenSet({automaton.initial}),-1),)
@@ -564,8 +576,12 @@ def complement(automaton,rightmost_2s,merge_states,add_color_3,delay):
     automaton = complete_automaton(automaton)
 
     if add_color_3:
-        complemented = color_3(automaton,upper_part,upper_part.initial,True)
+        complemented = color_3(automaton,upper_part,upper_part.initial,True,acc_type)
     else:
         complemented = determinise(automaton,upper_part,upper_part.initial,True,rightmost_2s,merge_states,delay)
 
     return complemented
+
+# udrziavat v hranach info o farbach
+# a potom ked robis prechod z nejakeho stavu, 
+# tak vychadzam zo vsetkych konfiguracii (prichadzajuce hrany do aktualne spracovavaneho stavu)

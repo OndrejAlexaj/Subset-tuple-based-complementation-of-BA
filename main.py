@@ -1,9 +1,9 @@
 from hashlib import new
 from venv import create
 from buchi_automaton import *
-from parser import *
+from parse_files import *
 from draw_automaton import *
-from parser import HOA_format
+from parse_files import HOA_format
 from union import *
 from emptiness import *
 from intersection import *
@@ -35,40 +35,51 @@ rightmost_2s = False
 merge_states = False
 add_color_3 = False
 delay = False
-for i in sys.argv[2:]:
-    if i == "0":
-        break
-    elif i == "1":
-        rightmost_2s = True
-    elif i == "2":
-        merge_states = True
-    elif i == "3":
-        rightmost_2s = True
-        merge_states = True
-    elif i == "4":
-        add_color_3 = True
-        break
-    elif i == "5":
-        rightmost_2s = True
-        merge_states = True
-        delay = True
-    else:
-        print("Invalid arguments!\n")
-        exit(1)
+
+if sys.argv[2] == "1":
+    rightmost_2s = True
+elif sys.argv[2] == "2":
+    merge_states = True
+elif sys.argv[2] == "3":
+    rightmost_2s = True
+    merge_states = True
+elif sys.argv[2] == "4":
+    add_color_3 = True
+elif sys.argv[2] == "5":
+    rightmost_2s = True
+    merge_states = True
+    delay = True
+else:
+    print("Invalid arguments!\n")
+    exit(1)
+
+acc_type = ""
+if sys.argv[3] == "state":
+    acc_type = "state"
+elif sys.argv[3] == "trans":
+    acc_type = "trans"
+else:
+    print("Invalid arguments!\n")
+    exit(1)
 #######################################################
 #                END OF PARSING ARGS                  #           
 #######################################################
 
 if format == 0:
-    buchiAutomaton = HOA_format(description_file)
+    buchiAutomaton = HOA_format(description_file,acc_type)
 else:
     buchiAutomaton = BA_format(description_file)
 
-complemented = complement(buchiAutomaton,rightmost_2s,merge_states,add_color_3,delay)
+complemented = complement(buchiAutomaton,rightmost_2s,merge_states,add_color_3,delay,acc_type)
 
-#draw_graph(complemented, "")
-output_HOA_format(complemented)
+draw_graph(complemented, "")
+if(acc_type == "state"):
+    output_HOA_format_state(complemented)
+else:
+    output_HOA_format_trans(complemented)
 
 f = open("output.hoa", "r")
 print(f.read())
 f.close()
+
+#print(complemented.states)
